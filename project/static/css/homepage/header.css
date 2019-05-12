@@ -1,0 +1,15 @@
+nav img{
+    width: 32px;
+    height: 32px;
+}
+        /* Make the slideshow fully responsive */
+.carousel-inner img {
+    max-width: 100%;
+    max-height: 85vh;
+}
+
+/* Topping the Header */
+.carousel-caption {
+    top: 0;
+    bottom: auto;
+}

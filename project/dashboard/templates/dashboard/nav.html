@@ -1,0 +1,28 @@
+{% block content %}
+  <link href="{{ url_for('static', filename = 'css/dashboard/home.css') }}" rel="stylesheet">
+  <div class="wrapper" id="wrapper">
+    <!-- Sidebar -->
+    <nav class="col-2" id="sidebar" style="background-color:#ddd; min-height:100%" >
+
+        <ul class="list-unstyled components">
+            <li>
+              <span id="show-home" class=""><a href="#">Home</a></span>
+            </li>
+            <li>
+                <span id="show-analytics" class=""><a href="#">Analytics</a></span>
+            </li>
+            <li>
+                <span id="show-accounts" class=""><a href="#">Accounts</a></span>
+            </li>
+            <li>
+                <span id="show-settings" class=""><a href="#">Settings</a></span>
+            </li>
+        </ul>
+    </nav>
+    {% include 'dashboard/includes/summary.html' %}
+    {% include 'dashboard/includes/analytics.html' %}
+    {% include 'dashboard/includes/settings.html' %}
+    {% include 'dashboard/includes/accounts.html' %}
+    <script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
+  </div>
+  {% endblock %}

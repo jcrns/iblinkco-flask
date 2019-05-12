@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        {% if title %}
+            <title>{{ title }}</title>
+        {% else %}
+            <title>Affordable Social Media Management | iBlinkco</title>
+        {% endif %}
+
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- links to jquery and bootstrap externally through cdn -->
+        <script src="https://code.jquery.com/jquery-3.4.0.js" integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo="crossorigin="anonymous"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <link rel="shortcut icon" href="{{ url_for('static', filename = 'img/homepage/icon.ico') }}" type="image/x-icon">
+    </head>
+    <body>
+        <script type="application/ld+json">
+            {
+            "@context": "http://schema.org",
+            "@type": "Organization",
+            "name": "iBlinkco",
+            "url": "https://www.iblinkco.com",
+            "logo": "https://www.iblinkco.com/img/logo.png"
+            }
+        </script>
+        <link href="{{ url_for('static', filename = 'css/homepage/header.css') }}" rel="stylesheet">
+
+        <!-- responsive Navigation Bar -->
+        <nav class="navbar navbar-expand-md navbar-default sticky-top" style="background:rgba(238,238,238,0.5);">
+
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#collapse_target" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon bg-dark"></span>
+            </button>
+            <a href="{{ url_for('homepage.home') }}#" class="navbar-brand"><img src="{{ url_for('static', filename = 'img/homepage/logo.png') }}"></a>
+            <a href="{{ url_for('dashboard.home') }}"><span class="font-weight-bold" style="color: #212121">{{ session['email'] }}</span></a>
+            <div class="collapse navbar-collapse" id="collapse_target">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                <a id="about-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#about">About</a>
+                </li>
+                <li class="nav-item">
+                <a id="pricing-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#pricing">Pricing</a>
+                </li>
+                <li class="nav-item">
+                <a id="contactus-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#contactus">Contact Us</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Tools
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                      <a class="dropdown-item" href="#">Social Media Dashboard</a>
+                      <a class="dropdown-item" href="#">Another action</a>
+                      <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a id="websites-button" class="nav-link font-weight-bold"
+                        href="{{ url_for('websites.home') }}">Get A Websites</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                {% if session['email'] %}
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" href="{{ url_for('dashboard.home') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" href="{{ url_for('users.logout') }}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" href="{{ url_for('users.login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold rounded" style="background-color:#FF8A00; color:#fff" href="{{ url_for('users.register') }}">Sign Up</a>
+                    </li>
+                {% endif %}
+            </ul>
+            </div>
+        </nav>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <!-- All included content -->
+        {% block content %} {% endblock %}
+    </body>
+    <!-- footer for page -->
+    <footer id="footer">
+        <p class="mt-5 mb-3 text-center" style="color:#000; bottom: 0px;">iBlinkco, Copyright © 2018</p>
+    </footer>
+</html>
