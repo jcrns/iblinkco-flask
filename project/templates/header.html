@@ -37,7 +37,7 @@
             <span class="navbar-toggler-icon bg-dark"></span>
             </button>
             <a href="{{ url_for('homepage.home') }}#" class="navbar-brand"><img src="{{ url_for('static', filename = 'img/homepage/logo.png') }}"></a>
-            <a href="{{ url_for('dashboard.home') }}"><span class="font-weight-bold" style="color: #212121">{{ session['email'] }}</span></a>
+            <a href="{{ url_for('dashboard.home') }}"><span class="font-weight-bold" style="color: #212121">{{ session['name'] }}</span></a>
             <div class="collapse navbar-collapse" id="collapse_target">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">

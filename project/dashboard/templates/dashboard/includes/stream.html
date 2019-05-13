@@ -1,3 +1,8 @@
 {% block content %}
-    <h1>Stream</h1>
+<div class="container-fluid" id="stream">
+	<h1>Stream</h1>
+	{% for follower in followers %}
+		<h2>{{ follower.name }}</h2>
+	{% endfor %}
+</div>
 {% endblock %}

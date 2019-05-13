@@ -25,7 +25,7 @@ def register():
 
         # Defining variables equal to post request paramaters
         url = "http://localhost:8000/create-user"
-        data = { 'email': form.email.data, 'password': form.password.data }
+        data = { 'firstname': form.firstname.data, 'lastname': form.lastname.data, 'email': form.email.data, 'password': form.password.data }
 
         # Sending data to API
         getData = requests.post(url = url, json = data) 
@@ -34,12 +34,15 @@ def register():
         returnedData = getData.json()
         successMessage = returnedData[0]['message']
         email = returnedData[0]['email']
+        firstname = returnedData[0]['firstname']
+        lastname = returnedData[0]['lastname']
 
         # Defining variables equal to json data
         instagramData = returnedData[1]
         twitterData = returnedData[2]
 
         # Storing returned data
+        session['name'] = str(firstname) + " " + str(lastname)
         session['email'] = email
         session['instagramData'] = instagramData
         session['twitterData'] = twitterData
@@ -68,17 +71,27 @@ def login():
         # Sending data to API
         getData = requests.post(url = url, json = data) 
         print(getData)
+
         # Getting returned data
         returnedData = getData.json()
-        successMessage = returnedData['userdata']['message']
-        print(successMessage)
+        try:
+            successMessage = returnedData['userdata']['message']
+            print(successMessage)
+        except Exception as e:
+            flash(f'Login Failed')
+            return redirect(url_for('users.login'))
+
+        # Defining User Varibles
         email = returnedData['userdata']['email']
+        firstname = returnedData['userdata']['firstname']
+        lastname = returnedData['userdata']['lastname']
 
         # Defining variables equal to json data
         instagramData = returnedData['returnedInfoInstagram']
         twitterData = returnedData['returnedInfoTwitter']
 
         # Storing returned data
+        session['name'] = str(firstname) + " " + str(lastname)
         session['email'] = email
         session['instagramData'] = instagramData
         session['twitterData'] = twitterData 
@@ -103,6 +116,7 @@ def login():
         session['twitterOnMobile'] = twitterData['on_mobile']
         session['twitterOnWeb'] = twitterData['on_web']
 
+        session.permanent = True
 
         return redirect(url_for('homepage.home'))
     return render_template('users/login.html', title="Login", form=form)

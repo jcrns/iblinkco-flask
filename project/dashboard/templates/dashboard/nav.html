@@ -17,12 +17,16 @@
             <li>
                 <span id="show-settings" class=""><a href="#">Settings</a></span>
             </li>
+            <li>
+                <span id="show-stream" class=""><a href="#">Stream</a></span>
+            </li>
         </ul>
     </nav>
     {% include 'dashboard/includes/summary.html' %}
     {% include 'dashboard/includes/analytics.html' %}
     {% include 'dashboard/includes/settings.html' %}
     {% include 'dashboard/includes/accounts.html' %}
+    {% include 'dashboard/includes/stream.html' %}
     <script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
   </div>
   {% endblock %}

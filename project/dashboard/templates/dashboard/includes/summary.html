@@ -5,6 +5,9 @@
         <div class="card">
             <div class="card-body">
             <h5>{{ session['email'] }}</h5>
+            {% for user in userInfo %}
+              <h1>{{ user.screen_name }}</h1>
+            {% endfor %}
             <h1 id="total-followers"></h1>
             <p id="total-post"></p>
             <p id="total-following"></p>
