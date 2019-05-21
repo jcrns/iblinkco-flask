@@ -37,7 +37,7 @@ def googleConnect(userInput):
 		"q": userInput,
 		"cx":'001120039411021127475:a4iq_yrptao',
 		"key":'AIzaSyCoVGR41c_O-q7Xz21FduFHtmm37azYTjQ',
-		"start": 2
+		"start": 1
 	}
 	page = requests.request("GET", url, params=parameters)
 

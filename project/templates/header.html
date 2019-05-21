@@ -39,48 +39,48 @@
             <a href="{{ url_for('homepage.home') }}#" class="navbar-brand"><img src="{{ url_for('static', filename = 'img/homepage/logo.png') }}"></a>
             <a href="{{ url_for('dashboard.home') }}"><span class="font-weight-bold" style="color: #212121">{{ session['name'] }}</span></a>
             <div class="collapse navbar-collapse" id="collapse_target">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                <a id="about-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#about">About</a>
-                </li>
-                <li class="nav-item">
-                <a id="pricing-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#pricing">Pricing</a>
-                </li>
-                <li class="nav-item">
-                <a id="contactus-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#contactus">Contact Us</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Tools
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                      <a class="dropdown-item" href="#">Social Media Dashboard</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a id="websites-button" class="nav-link font-weight-bold"
-                        href="{{ url_for('websites.home') }}">Get A Websites</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                {% if session['email'] %}
+                <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href="{{ url_for('dashboard.home') }}">Dashboard</a>
+                    <a id="about-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#about">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href="{{ url_for('users.logout') }}">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href="{{ url_for('users.login') }}">Login</a>
+                    <a id="pricing-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#pricing">Pricing</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold rounded" style="background-color:#FF8A00; color:#fff" href="{{ url_for('users.register') }}">Sign Up</a>
+                    <a id="contactus-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#contactus">Contact Us</a>
                     </li>
-                {% endif %}
-            </ul>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Tools
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                          <a class="dropdown-item" href="#">Social Media Dashboard</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a id="websites-button" class="nav-link font-weight-bold"
+                            href="{{ url_for('websites.home') }}">Get A Websites</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    {% if session['email'] %}
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" href="{{ url_for('dashboard.home') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" href="{{ url_for('users.logout') }}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" href="{{ url_for('users.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold rounded" style="background-color:#FF8A00; color:#fff" href="{{ url_for('users.register') }}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </nav>
         {% with messages = get_flashed_messages(with_categories=true) %}

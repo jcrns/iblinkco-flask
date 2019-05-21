@@ -39,9 +39,10 @@ app.register_blueprint(dashboard)
 app.register_blueprint(api)
 
 
-# Generating the secret key
+# Key Config
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=40000)
+SESSION_TYPE = 'filesystem'
 
 @app.route('/')
 def root():

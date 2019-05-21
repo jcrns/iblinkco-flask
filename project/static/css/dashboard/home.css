@@ -1,26 +1,55 @@
-  #analytics {
-      display: none;
-  }
+/*Body Styling*/
+html,body
+{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden; 
+}
 
-  #stream {
-      display: none;
-  }
+/*Sidebar*/
+#sidebar-status {
+  /*margin-top: -1%;*/
+  /*text-align: center;*/
+}
+#sidebar-status ul {
+  margin-left: 25%;
+}
+#sidebar-status img {
+  width: 15px;
+  height: 15px;
+  margin-left: 2%;
+}
 
-  .dashboard-row-item {
-      min-height: 40vh;
-  }
+/*Header Bar*/
+#header-bar {
+  background-color: #000;
+  min-height: 5vh;
+}
+#header-bar p {
+  color: #fff;
+  margin-left: 3%;
+}
 
-  .wrapper,
-  #admin,
-  #accounts,
-  #analytics {
-      display: flex;
-      width: 100%;
-      height: 80vh;
-      align-items: stretch;
-      /* border: solid red; */
-  }
+/*Summary*/
+#summary {
+  height: 70vh;
+}
 
-  .dashboard-row {
-      /* border: solid red; */
-  }
+/*NON CONNECTED MODEL*/
+
+/*sign in buttons*/
+.unavalable-logo {
+  opacity: 0.2;
+}
+.social-logo {
+  width: 75px; 
+  height: 75px;
+  margin-left: 5%;
+}
+#refresh-twitter {
+  margin-left: 1%;
+  width: 35px;
+  height: 35px;
+}

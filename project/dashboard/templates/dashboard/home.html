@@ -1,8 +1,70 @@
 <!-- Jinja file including all homepage content -->
 {% extends "header.html" %}
-
-
 {% block content %}
-  {% include "dashboard/nav.html" %}
+	<link href="{{ url_for('static', filename = 'css/dashboard/home.css') }}" rel="stylesheet">
+	{% if session['setup_complete'] == True%}
+	<div id="header-bar" class="bg-dark">
+		<p><span id="header-bar-name">{{ session['userTwitterData']['name'] }}</span><span id="header-bar-description">    {{ session['userTwitterData']['description'] }}</span></p>
+	</div>
+	<div class="row">
+	<!-- Sidebar -->
+	<div class="col-md-2 col-lg-2 h-auto d-inline-block bg-light" id="sidebar-status">
+		<ul class="list-unstyled components">
+			<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 		
+		</ul>
+	</div>
+	<div class="card col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
+		<h5>{{ session['email'] }}</h5>
+		<h6>{{ session['userTwitterData']['location'] }}</h6>
+		<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
+		<h5>Total Following: {{ session['userTwitterData']['friends_count'] }}</h5>
+	</div>
+	<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
+		<div class="card">
+			<h4>Followers</h4>
+		</div>
+		<div class="card">
+			<h4>Competition</h4>
+			
+		</div>
+	</div>
+	</div>
+	{% else %}
+	  <!-- Modal -->
+	<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLabel">Connect</h5>
+	      </div>
+	      <div class="modal-body">
+	      	<p><a href="{{ url_for('dashboard.twitterLogin') }}"><img class="social-logo" src="{{ url_for('static', filename = 'img/dashboard/twitter-logo.png') }}"></a>
+	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/facebook-logo.png') }}">
+	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/snapchat-logo.png') }}">
+	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/instagram-logo.png') }}"></p>
 
+	        <h4>Add Your Website! (Optional)</h4>
+	        <form method="POST" id="setup-connect-form">
+	        	<input id="website-name" placeholder="Website Name" type="text" name="website">
+	       		<input id="website-url" placeholder="Website URL"type="text" name="website">
+	       		<br>
+	       		<br>
+		        {% if session['userTwitterData'] %}
+		        	<h4>{{ session['userTwitterData']['name'] }}</h4>
+		        {% else %}
+		        	<p class="text-danger">Twitter Required To Procceed</p>
+		        {% endif %}
+	        	<p><input class="btn btn-primary" type="submit" value="Go!"></p>
+	       		<p id="setup-form-message" class="text-danger"></p>
+	        </form>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	{% endif %}
+	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
+
+	<script type="text/javascript">
+
+	</script>
 {% endblock %}
