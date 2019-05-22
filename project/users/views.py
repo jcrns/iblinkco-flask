@@ -25,9 +25,9 @@ def creationFormating(returnedData):
     # Storing returned data
     session['name'] = str(firstname) + " " + str(lastname)
     session['email'] = email
+    session['website_name'] = websiteName
+    session['website_url'] = websiteUrl
 
-
-    # Checking if dictionaries exist
 
     # Checking for complete setup
     try:
@@ -94,7 +94,7 @@ def register():
             session['email'] = email
             session['instagramData'] = instagramData
             session['twitterData'] = twitterData
-
+            
 
             # Alerting user account was created
             flash(f'Account Created for {form.email.data} !', 'success')
@@ -124,8 +124,9 @@ def login():
 
         # Getting returned data
         finalizedData = getData.json()
-        print(finalizedData[1])
+        print(finalizedData)
         session['user'] = finalizedData[1]
+        session['tips'] = finalizedData[2]
         returnedData = finalizedData[0]
         print(returnedData)
 

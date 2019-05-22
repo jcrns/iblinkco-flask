@@ -10,6 +10,9 @@ from project.decorators import login_required
 # Importing formating function
 from project.users.views import creationFormating
 
+# Importing tips function
+from project.api.views import tips
+
 # Importing counter tool
 import itertools
 
@@ -69,7 +72,9 @@ def updateSetupAndWebsite():
 			# Getting database value
 			databaseData = dict(database.child("users").child(uid).child("data").get().val())
 			formatData = creationFormating(databaseData)
+			returnedTips = tips(formatData)
 			value = "success"
+			session['tips'] = returnedTips
 		else:		
 			value="website form incomplete"
 	except Exception as e:

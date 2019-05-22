@@ -1,7 +1,10 @@
+# Importing all needed Flask classes
 from flask import g, Blueprint, jsonify, request, make_response, session, url_for, redirect, flash
 
+# Firebase connection
 from project.social_apis import firebaseConnect
 
+# Tools for for loops
 import itertools
 
 api = Blueprint('api', __name__, template_folder='templates')
@@ -13,6 +16,27 @@ database = databaseConnect['database']
 
 authe = databaseConnect['authe']
 
+# Tips
+def tips(userReturn):
+	tips = []
+	print('aaaa')
+	description = userReturn['twitter']['userData']['description']
+	location = userReturn['twitter']['userData']['location']
+
+	# If conditions are true tips will be given to user
+	descriptionLen = len(description)
+	print(descriptionLen)
+	if descriptionLen < 160:
+		descriptionLenMessage = "Only " + str(descriptionLen) + "/180 of your characters have been used for your bio. Explain who you are!"
+		tips.append(descriptionLenMessage)
+	elif "#" not in description:
+		descriptionNoHashtagsMessage = "No Hashtags Found. Try adding hashtags to your bio!"
+		tips.append(descriptionLenMessage)
+	elif location == "":
+		locationIsNoneMessage = "No location found! Add your location so people know where you are located"
+		tips.append(locationIsNoneMessage)
+
+	return tips
 
 # Sign Up Function
 @api.route("/create-user", methods=['GET', 'POST'])
@@ -61,7 +85,7 @@ def signUp():
 	return jsonify(userReturn)
 
 # Signin Function
-@api.route("/signin", methods=['POST'])
+@api.route("/signin", methods=['GET', 'POST'])
 def signIn():
 	userData = dict()
 
@@ -91,6 +115,11 @@ def signIn():
 		userReturn = dict(database.child("users").child(uid).child("data").get().val())
 		userFinal.append(userReturn)
 
+		# Tips
+		print("Tips\n\n\n\n\n\n\n\n\n")
+		returnedTips = tips(userReturn)
+		print(returnedTips)
+		print("Tips\n\n\n\n\n\n\n\n\n")
 		print(userReturn)
 	except Exception as e:
 		print("Signin error below")
@@ -100,6 +129,8 @@ def signIn():
 
 	# print(user)
 	userFinal.append(user)
+	userFinal.append(returnedTips)
+
 	# print(userReturn)
 	print(userReturn)
 

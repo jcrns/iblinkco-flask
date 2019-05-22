@@ -7,30 +7,44 @@
 		<p><span id="header-bar-name">{{ session['userTwitterData']['name'] }}</span><span id="header-bar-description">    {{ session['userTwitterData']['description'] }}</span></p>
 	</div>
 	<div class="row">
+
 	<!-- Sidebar -->
 	<div class="col-md-2 col-lg-2 h-auto d-inline-block bg-light" id="sidebar-status">
-		<ul class="list-unstyled components">
-			<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 		
+		<ul class="list-unstyled components" id="sidebar-list">
+			<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 
 		</ul>
+		{% for tip in session['tips'] %}
+			<div class="card">
+				<button type="button" style="text-align: right;" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+            	</button>
+				<h5>Tip</h5>
+				<p>{{ tip }}</p>
+			</div>
+		{% endfor %}
 	</div>
+
+
 	<div class="card col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
 		<h5>{{ session['email'] }}</h5>
 		<h6>{{ session['userTwitterData']['location'] }}</h6>
 		<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
 		<h5>Total Following: {{ session['userTwitterData']['friends_count'] }}</h5>
 	</div>
-	<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
+	
+	<!-- Follower and Competition Divs -->
+	<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="followers-competition">
 		<div class="card">
 			<h4>Followers</h4>
 		</div>
 		<div class="card">
 			<h4>Competition</h4>
-			
+			<p>Here's Your Competition and what platforms they're on! Go Research what they do!</p>
 		</div>
 	</div>
 	</div>
 	{% else %}
-	  <!-- Modal -->
+	  <!-- Setup Modal -->
 	<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
 	  <div class="modal-dialog" role="document">
 	    <div class="modal-content">
@@ -64,7 +78,5 @@
 	{% endif %}
 	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
 
-	<script type="text/javascript">
-
-	</script>
+	<script type="text/javascript">	</script>
 {% endblock %}
