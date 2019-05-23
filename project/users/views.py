@@ -94,7 +94,7 @@ def register():
             session['email'] = email
             session['instagramData'] = instagramData
             session['twitterData'] = twitterData
-            
+
 
             # Alerting user account was created
             flash(f'Account Created for {form.email.data} !', 'success')
@@ -124,11 +124,15 @@ def login():
 
         # Getting returned data
         finalizedData = getData.json()
+        # print(finalizedData)
         print(finalizedData)
         session['user'] = finalizedData[1]
         session['tips'] = finalizedData[2]
         returnedData = finalizedData[0]
-        print(returnedData)
+        # print(returnedData)
+
+        # Getting history
+        session['history'] = finalizedData[3]
 
         try:
 

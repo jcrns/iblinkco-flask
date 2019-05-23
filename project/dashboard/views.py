@@ -11,7 +11,7 @@ from project.decorators import login_required
 from project.users.views import creationFormating
 
 # Importing tips function
-from project.api.views import tips
+from project.api.views import tips, history
 
 # Importing counter tool
 import itertools
@@ -283,7 +283,7 @@ def twitterOauthorized():
 
 		userData = twitter.request('users/show.json?screen_name=' + screen_name)
 		userData = userData.data
-		print(userData)
+		# print(userData)
 
 		# Updating twitter data in firebase
 		
@@ -318,6 +318,14 @@ def twitterOauthorized():
 			# Formating Twitter Data
 			databaseData = dict(database.child("users").child(uid).child("data").get().val())
 			formatData = creationFormating(databaseData)
+
+			# Getting Tips
+			returnedTips = tips(databaseData)
+			session['tips'] = returnedTips
+
+			# Getting history
+			historyReturned = history(databaseData)
+			session['history'] = historyReturned
 
 		except Exception as e:
 			print(e)

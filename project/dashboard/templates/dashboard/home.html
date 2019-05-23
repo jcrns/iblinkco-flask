@@ -15,7 +15,7 @@
 		</ul>
 		{% for tip in session['tips'] %}
 			<div class="card">
-				<button type="button" style="text-align: right;" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="close dismiss-tip" data-dismiss="modal" aria-label="Close" onclick="dismissTip(this)">
 					<span aria-hidden="true">&times;</span>
             	</button>
 				<h5>Tip</h5>
@@ -24,12 +24,16 @@
 		{% endfor %}
 	</div>
 
-
+	<!-- Summary -->
 	<div class="card col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
+		<!-- Displaying user data -->
 		<h5>{{ session['email'] }}</h5>
 		<h6>{{ session['userTwitterData']['location'] }}</h6>
 		<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
-		<h5>Total Following: {{ session['userTwitterData']['friends_count'] }}</h5>
+		<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
+
+		<!-- Followers History -->
+        <canvas id="followers-history"></canvas>
 	</div>
 	
 	<!-- Follower and Competition Divs -->
@@ -77,6 +81,62 @@
 	</div>
 	{% endif %}
 	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
+	<script type="text/javascript">
+		// alert("{{ session['history'] }}")
+		function followersGraph(){
+			var dateList = [] ;
+			var followerNumberList = [];
+			{% for follower in session['history'] %}
+				follower = '{{ follower[0] }}'
+				if (follower.includes('-')) {
+					dateList.push(follower)
+				} 
+				else {
+					followerNumberList.push(follower)
+				}
+			{% endfor %}
+			// alert(dateList)
+			// alert(followerNumberList)
+			new Chart(document.getElementById("followers-history"), {
+			  type: 'line',
+			  data: {
+			    labels: dateList,
+			    datasets: [{ 
+			        data: followerNumberList,
+			        label: "Twitter",
+			        borderColor: "#28aae1",
+			        fill: false
+			      }
+			    ]
+			  },
+			  options: {
+			    title: {
+			      display: true,
+			      text: 'Your Trend of Followers'
+			    }
+			  }
+			});
+		}
+		followersGraph();
+// new Chart(document.getElementById("followers-history"), {
+//   type: 'line',
+//   data: {
+//     labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
+//     datasets: [{ 
+//         data: [86,114,106,106,107,111,133,221,783,2478],
+//         label: "Africa",
+//         borderColor: "#3e95cd",
+//         fill: false
+//       }
+//     ]
+//   },
+//   options: {
+//     title: {
+//       display: true,
+//       text: 'World population per region (in millions)'
+//     }
+//   }
+// });
 
-	<script type="text/javascript">	</script>
+	</script>
 {% endblock %}

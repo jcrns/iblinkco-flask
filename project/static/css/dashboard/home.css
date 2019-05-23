@@ -54,3 +54,8 @@ html,body
   width: 35px;
   height: 35px;
 }
+
+/*Dismiss tip button*/
+.dismiss-tip {
+  text-align: right;
+}

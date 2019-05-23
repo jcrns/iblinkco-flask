@@ -20,23 +20,51 @@ authe = databaseConnect['authe']
 def tips(userReturn):
 	tips = []
 	print('aaaa')
-	description = userReturn['twitter']['userData']['description']
-	location = userReturn['twitter']['userData']['location']
+	try:
+		description = userReturn['twitter']['userData']['description']
+		location = userReturn['twitter']['userData']['location']
 
-	# If conditions are true tips will be given to user
-	descriptionLen = len(description)
-	print(descriptionLen)
-	if descriptionLen < 160:
-		descriptionLenMessage = "Only " + str(descriptionLen) + "/180 of your characters have been used for your bio. Explain who you are!"
-		tips.append(descriptionLenMessage)
-	elif "#" not in description:
-		descriptionNoHashtagsMessage = "No Hashtags Found. Try adding hashtags to your bio!"
-		tips.append(descriptionLenMessage)
-	elif location == "":
-		locationIsNoneMessage = "No location found! Add your location so people know where you are located"
-		tips.append(locationIsNoneMessage)
+		# If conditions are true tips will be given to user
+		descriptionLen = len(description)
+		print(descriptionLen)
+		if descriptionLen < 160:
+			descriptionLenMessage = "Only " + str(descriptionLen) + "/180 of your characters have been used for your bio. Explain who you are!"
+			tips.append(descriptionLenMessage)
+		if "#" not in description:
+			descriptionNoHashtagsMessage = "No Hashtags Found. Try adding hashtags to your bio!"
+			tips.append(descriptionNoHashtagsMessage)
+		if location == "":
+			locationIsNoneMessage = "No location found! Add your location so people know where you are located"
+			tips.append(locationIsNoneMessage)
 
-	return tips
+		return tips
+
+	except Exception as e:
+		print('tips error')
+		print(e)
+
+# Get History
+def history(userReturn):
+	try:
+		followerHistoryVar = userReturn['twitter']['history']['followers']
+		dateList = []
+		followerList = []
+		for i in followerHistoryVar:
+			print(i)
+			dateList.append(i)
+
+			date = followerHistoryVar[i]
+
+			followerNumber = date['followers_count'] 
+			followerList.append(followerNumber)
+
+		data = []
+		data.append(dateList)
+		data.append(followerList)
+		return data
+	except Exception as e:
+		print('Trouble getting history')
+		print(e)
 
 # Sign Up Function
 @api.route("/create-user", methods=['GET', 'POST'])
@@ -119,8 +147,12 @@ def signIn():
 		print("Tips\n\n\n\n\n\n\n\n\n")
 		returnedTips = tips(userReturn)
 		print(returnedTips)
-		print("Tips\n\n\n\n\n\n\n\n\n")
-		print(userReturn)
+
+		# History
+		historyReturned = history(userReturn)
+
+		# print(userReturn)
+
 	except Exception as e:
 		print("Signin error below")
 		print(e)
@@ -130,6 +162,7 @@ def signIn():
 	# print(user)
 	userFinal.append(user)
 	userFinal.append(returnedTips)
+	userFinal.append(historyReturned)
 
 	# print(userReturn)
 	print(userReturn)
