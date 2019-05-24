@@ -11,7 +11,7 @@ from project.decorators import login_required
 from project.users.views import creationFormating
 
 # Importing tips function
-from project.api.views import tips, history
+from project.api.views import tips, history, followerData
 
 # Importing counter tool
 import itertools
@@ -312,8 +312,8 @@ def twitterOauthorized():
 			database.child("users").child(uid).child("data").child("twitter").child("followers").set(followers)
 
 			# Saving Data as history
-			database.child("users").child(uid).child("data").child("twitter").child("history").child("followers").set({ str(date_time) : userFollowers })
-			database.child("users").child(uid).child("data").child("twitter").child("history").child("following").set({ str(date_time) : userFollowing })
+			database.child("users").child(uid).child("data").child("twitter").child("history").child("followers").update({ str(date_time) : userFollowers })
+			database.child("users").child(uid).child("data").child("twitter").child("history").child("following").update({ str(date_time) : userFollowing })
 
 			# Formating Twitter Data
 			databaseData = dict(database.child("users").child(uid).child("data").get().val())
@@ -326,6 +326,10 @@ def twitterOauthorized():
 			# Getting history
 			historyReturned = history(databaseData)
 			session['history'] = historyReturned
+
+			# Getting followers' data
+			followersData = followerData(databaseData)
+			session['followersData'] = followersData
 
 		except Exception as e:
 			print(e)

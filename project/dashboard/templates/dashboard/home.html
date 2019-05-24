@@ -14,7 +14,7 @@
 			<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 
 		</ul>
 		{% for tip in session['tips'] %}
-			<div class="card">
+			<div class="card tip-card">
 				<button type="button" class="close dismiss-tip" data-dismiss="modal" aria-label="Close" onclick="dismissTip(this)">
 					<span aria-hidden="true">&times;</span>
             	</button>
@@ -34,12 +34,23 @@
 
 		<!-- Followers History -->
         <canvas id="followers-history"></canvas>
+        <p>
+        	<small id="followers-avg"></small>
+        	<small id="followers-min"></small>
+        	<small id=followers-max></small>
+        </p>
 	</div>
 	
 	<!-- Follower and Competition Divs -->
 	<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="followers-competition">
 		<div class="card">
 			<h4>Followers</h4>
+			<p>Learn about your followers</p>
+
+			<!-- Followers table -->
+			<table id="followers-data-table">
+				
+			</table>
 		</div>
 		<div class="card">
 			<h4>Competition</h4>
@@ -82,21 +93,78 @@
 	{% endif %}
 	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
 	<script type="text/javascript">
-		// alert("{{ session['history'] }}")
+		// alert("{{ session['followersData'][1][7] }}")
+		function followersData(){
+			// Follower data list
+			var followerNameList = [];
+			var followerLocationList = [];
+
+			{% for followerName in session['followersData'][0] %}
+				followerName = '{{ followerName }}'
+				followerNameList.push(followerName)
+			{% endfor %}
+
+			{% for followerLocation in session['followersData'][1] %}
+				followerLocation = '{{ followerLocation }}'
+				followerLocationList.push(followerLocation)
+			{% endfor %}
+
+			
+			var opperationTable = document.getElementById('followers-data-table'); 
+
+			var titleRow = document.createElement('tr');
+          	titleRow.setAttribute('class', "bg-info");
+
+
+			var titleName = document.createElement('td');
+			titleName.innerHTML = "<span style='color: #fff;'>Name</span>";
+
+			var titleLocation = document.createElement('td');
+			titleLocation.innerHTML = "<span style='color: #fff;'>Location</span>";
+
+			titleRow.append(titleName)
+			titleRow.append(titleLocation)
+			opperationTable.appendChild(titleRow)
+
+			for(var i = 0; i < followerNameList.length; i++){
+
+				// Creating Elements
+          		var itemRow = document.createElement('tr');
+          		var itemDataRowName = document.createElement('td');
+          		var itemDataRowLocation = document.createElement('td');
+
+          		// Adding content
+          		if (followerLocationList[i] == '') {
+          			itemDataRowLocation.innerHTML = "No Location";
+          		} else{
+          			itemDataRowLocation.innerHTML = followerLocationList[i];
+          		}
+          		itemDataRowName.innerHTML = followerNameList[i];
+
+          		// Appending content
+          		itemRow.appendChild(itemDataRowName);
+          		itemRow.appendChild(itemDataRowLocation);
+          		opperationTable.appendChild(itemRow);
+			}
+		}
+		followersData();
 		function followersGraph(){
+
+			// Follower graph list
 			var dateList = [] ;
 			var followerNumberList = [];
-			{% for follower in session['history'] %}
-				follower = '{{ follower[0] }}'
-				if (follower.includes('-')) {
-					dateList.push(follower)
-				} 
-				else {
-					followerNumberList.push(follower)
-				}
+
+			// For loops
+			{% for follower in session['history'][0] %}
+				follower = '{{ follower }}'
+				dateList.push(follower)
 			{% endfor %}
-			// alert(dateList)
-			// alert(followerNumberList)
+
+			{% for follower in session['history'][1] %}
+				follower = '{{ follower }}'
+				followerNumberList.push(follower)
+			{% endfor %}
+			
 			new Chart(document.getElementById("followers-history"), {
 			  type: 'line',
 			  data: {
@@ -116,6 +184,22 @@
 			    }
 			  }
 			});
+
+			// Analyzing data
+			var total = 0;
+			for(var i = 0; i < followerNumberList.length; i++){
+				total += parseInt(followerNumberList[i]);
+			}
+			var followerCountAvg = total / followerNumberList.length;
+			
+			var followerCountMin = Math.min.apply(null, followerNumberList);
+
+			var followerCountMax = Math.max.apply(null, followerNumberList);
+
+			// Entering data to html
+			$('#followers-avg').html('Average: ' + followerCountAvg)
+			$('#followers-min').html('Min: ' + followerCountMin)
+			$('#followers-max').html('Max: ' + followerCountMax)
 		}
 		followersGraph();
 // new Chart(document.getElementById("followers-history"), {

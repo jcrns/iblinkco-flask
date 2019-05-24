@@ -66,6 +66,43 @@ def history(userReturn):
 		print('Trouble getting history')
 		print(e)
 
+# Getting followers' data
+def followerData(userReturn):
+	try:
+		print('followw\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+		followersLocatonList = []
+		followersNameList = []
+
+		# Getting followers info from database
+		followers = userReturn['twitter']['followers']['users']
+
+		# counter
+		x = 0
+		# For loop getting location and name
+		for follow in followers:
+			x += 1
+			followerLocation = follow['location']
+			print(followerLocation)
+			followersLocatonList.append(followerLocation)
+
+			followerName = follow['name']
+			print(followerName)
+
+			followersNameList.append(followerName)
+
+			if x > 20:
+				break
+		print(followersLocatonList)
+		print(followersNameList)
+		data = []
+		data.append(followersNameList)
+		data.append(followersLocatonList)
+		print('\n\n\n\n\n\n\n\n\n\n\n\n')
+		return data
+	except Exception as e:
+		print('Trouble getting follower data returned')
+		print(e)
+
 # Sign Up Function
 @api.route("/create-user", methods=['GET', 'POST'])
 def signUp():
@@ -151,7 +188,10 @@ def signIn():
 		# History
 		historyReturned = history(userReturn)
 
-		# print(userReturn)
+		# Getting followers data
+		followersData = followerData(userReturn)
+
+
 
 	except Exception as e:
 		print("Signin error below")
@@ -163,6 +203,7 @@ def signIn():
 	userFinal.append(user)
 	userFinal.append(returnedTips)
 	userFinal.append(historyReturned)
+	userFinal.append(followersData)
 
 	# print(userReturn)
 	print(userReturn)

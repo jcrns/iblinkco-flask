@@ -134,6 +134,9 @@ def login():
         # Getting history
         session['history'] = finalizedData[3]
 
+        # Getting followers' data
+        session['followersData'] = finalizedData[4]
+
         try:
 
             createFormat = creationFormating(returnedData)

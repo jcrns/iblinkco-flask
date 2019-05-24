@@ -24,18 +24,18 @@ $(document).ready(function(){
 
 });
 function dismissTip(e){
-    $(e).parent().remove();
+  $(e).parent().remove();
   element = document.getElementById('sidebar-status');
 
-// alert(element.childNodes.length);
+  // alert(element.childNodes.length);
 
-if(element.childNodes.length == 5){
-    // div = document.getElementById('sidebar-status');
-        var noneDiv = document.createElement('p');
-        var noneText = document.createTextNode('No Tips');
-        noneDiv.appendChild(noneText);
-        element.appendChild(noneDiv);
-} 
+  if(element.childNodes.length == 4){
+  // div = document.getElementById('sidebar-status');
+    var noneDiv = document.createElement('p');
+    var noneText = document.createTextNode('No Tips');
+    noneDiv.appendChild(noneText);
+    element.appendChild(noneDiv);
+  } 
 
 }
 function tipsExist(){
