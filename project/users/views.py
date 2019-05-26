@@ -139,6 +139,7 @@ def login():
 
         # Getting website data
         session['websiteData'] = finalizedData[5]
+        print(finalizedData[5])
 
         try:
 

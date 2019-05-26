@@ -2,7 +2,7 @@
 from flask import Flask, render_template, session, flash, redirect, Blueprint, request, jsonify, g, url_for, make_response
 
 # Importing twitter api
-from project.social_apis import twitterConnect, firebaseConnect
+from project.social_apis import twitterConnect, firebaseConnect, websiteScrapping
 
 # Importing Login Required
 from project.decorators import login_required
@@ -64,8 +64,13 @@ def updateSetupAndWebsite():
 
 
 		if website_name != '' or website_url != '':
+
+			websiteScrap = websiteScrapping(website_url)
+
 			# Defining json equal to input
-			addWebsite = { "website-name" : website_name, "website-url": website_url }
+			addWebsite = { "website-name" : website_name, "website-url" : website_url, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
+
+			session['websiteData'] = websiteData
 
 			# Putting json in pyrebase
 			database.child("users").child(uid).child("data").child("website").set(addWebsite)
@@ -338,7 +343,7 @@ def twitterOauthorized():
 			session['followersData'] = followersData
 
 			# Getting website data
-			websitesData = websites(databaseData)
+			websiteData = dict(database.child("users").child(uid).child("data").child("website").get().val())
 			session['websiteData'] = websiteData
 
 		except Exception as e:

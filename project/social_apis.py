@@ -1,6 +1,6 @@
 import pyrebase, json, requests
 from flask_oauthlib.client import OAuth
-import request as rq
+import requests as rq
 from bs4 import BeautifulSoup
 
 def firebaseConnect():
@@ -68,6 +68,31 @@ def twitterConnect():
 	return twitter
 
 def websiteScrapping(website):
-	request = rq.get(website)
-	soup = BeautifulSoup(request.text, 'html.parser')
+	print('aaalll')
+	# Making Request
+	r = rq.get(str(website))
+
+	# Defining variable soup
+	soup = BeautifulSoup(r.text, 'html.parser')
+
+	# Getting header tags
 	headerTags = soup.find('title').text
+
+	# Define return list
+	returnList = []
+	linkList = []
+	# Getting hrefs
+
+	hrefs = soup.find_all('a')
+	for href in hrefs:
+		link = href['href']	
+		if '/' in link:
+			fullUrl = str(website) + str(link)
+			linkList.append(link)
+
+	returnList.append(headerTags)
+	returnList.append(linkList)
+
+	return returnList
+
+

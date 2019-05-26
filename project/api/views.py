@@ -1,8 +1,8 @@
 # Importing all needed Flask classes
-from flask import g, Blueprint, jsonify, request, make_response, session, url_for, redirect, flash
+from flask import Flask, session, redirect, Blueprint, request, jsonify, g, url_for, make_response
 
 # Firebase connection
-from project.social_apis import firebaseConnect
+from project.social_apis import firebaseConnect, websiteScrapping
 
 # Tools for for loops
 import itertools
@@ -20,13 +20,22 @@ authe = databaseConnect['authe']
 def websites(userReturn):
 	websiteData = dict()
 	try:
-		# Defining variables
+		# Saving required variables
 		websiteName = userReturn['website']['website-name']
 		websiteUrl = userReturn['website']['website-url']
 
-		# Putting data in dict
 		websiteData['website-name'] = websiteName
 		websiteData['website-url'] = websiteUrl
+		
+		# Trying other variables
+		try:
+			headerText = userReturn['website']['header-text']
+			links = userReturn['website']['links']
+			websiteData['header-text'] = headerText
+			websiteData['links'] = links
+		except Exception as e:
+			print(e)
+		print('\n\n\n\n\n\n\n\n\n\n\n\n')
 		print(websiteData)
 		return websiteData
 	except Exception as e:
@@ -70,6 +79,14 @@ def tips(userReturn):
 				twitterDaysStatic += 1
 		print('daysStatic')
 		print(twitterDaysStatic)
+
+		# Trying to give other tips
+		try:
+			pass
+			
+		except Exception as e:
+			print('no unrequired tips')
+			print(e)
 
 		# If conditions are true tips will be given to user
 		
@@ -291,8 +308,12 @@ def connectWebsite():
 		websiteUrl = request.form['website_url']
 
 		if websiteName is not None and websiteUrl is not None:
-
-			websiteData = { "website-name" : websiteName, "website-url": websiteUrl }
+			print('aaa')
+			websiteScrap = websiteScrapping(websiteUrl)
+			print('aaa')
+			
+			websiteData = { "website-name" : websiteName, "website-url" : websiteUrl, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
+			print('aaa')
 
 			# Putting them into sessions
 			session['websiteData'] = websiteData
@@ -308,9 +329,11 @@ def connectWebsite():
 			value = 'failed'
 		return jsonify(value)
 	except Exception as e:
-		print('Not dashboard')
+		print('Not dashboard\n\n\n\n\n\n\n')
 		print(e)
+		print("d")
 
+		# API Request
 		try:
 			print(request.get_json())
 
@@ -321,7 +344,10 @@ def connectWebsite():
 			# Defining variables
 			websiteName = userData['website-name']
 			websiteUrl = userData['website-url']
-			websiteData = { "website-name" : websiteName, "website-url": websiteUrl }
+			
+			websiteScrap = websiteScrapping(website_url)
+			
+			addWebsite = { "website-name" : website_name, "website-url" : website_url, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
 
 			# Importing data in firebase
 			database.child("users").child(uid).child("data").child("website").set(websiteData)

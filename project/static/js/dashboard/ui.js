@@ -44,13 +44,13 @@ function dismissTip(e){
   tipDiv = $(e).parent()
   $(tipDiv).fadeOut( "normal", function() {
     // Fade out complete
+    $(e).parent().remove();
   });
-  // $(e).parent().remove();
-  // element = document.getElementById('sidebar-status');
+  element = document.getElementById('sidebar-status');
 
   // alert(element.childNodes.length);
 
-  if(element.childNodes.length == 4){
+  if(element.childNodes.length == 6){
   // div = document.getElementById('sidebar-status');
     var noneDiv = document.createElement('p');
     var noneText = document.createTextNode('No Tips');
