@@ -137,6 +137,9 @@ def login():
         # Getting followers' data
         session['followersData'] = finalizedData[4]
 
+        # Getting website data
+        session['websiteData'] = finalizedData[5]
+
         try:
 
             createFormat = creationFormating(returnedData)

@@ -16,31 +16,85 @@ database = databaseConnect['database']
 
 authe = databaseConnect['authe']
 
+# Website
+def websites(userReturn):
+	websiteData = dict()
+	try:
+		# Defining variables
+		websiteName = userReturn['website']['website-name']
+		websiteUrl = userReturn['website']['website-url']
+
+		# Putting data in dict
+		websiteData['website-name'] = websiteName
+		websiteData['website-url'] = websiteUrl
+		print(websiteData)
+		return websiteData
+	except Exception as e:
+		 print('Getting Website failed')
+		 print(e)
+
 # Tips
 def tips(userReturn):
 	tips = []
 	print('aaaa')
 	try:
-		description = userReturn['twitter']['userData']['description']
-		location = userReturn['twitter']['userData']['location']
+		# Defining variables
+
+		# Twitter variables
+		twitterDescription = userReturn['twitter']['userData']['description']
+		twitterName = userReturn['twitter']['userData']['name']
+		twitterLocation = userReturn['twitter']['userData']['location']
+
+		# Website variables
+		websiteName = userReturn['website']['website-name']
+		websiteUrl = userReturn['website']['website-url']
+
+		twitterDescriptionLen = len(twitterDescription)
+
+		twitterFollowers = history(userReturn)
+
+		print('\n\n\n\n\n\n\n\n\n\n\n')
+		print(twitterFollowers)
+		twitterFollowerNumberList = twitterFollowers[1]
+		print(twitterFollowerNumberList)
+
+		# Finding out static trend with for loop
+		twitterDaysStatic = 0
+		for i in itertools.count():
+			print(i)
+			if i == len(twitterFollowerNumberList):
+				break
+			if i == 0:
+				i += 1
+			if twitterFollowerNumberList[-i] == twitterFollowerNumberList[-i + 1]:
+				twitterDaysStatic += 1
+		print('daysStatic')
+		print(twitterDaysStatic)
 
 		# If conditions are true tips will be given to user
-		descriptionLen = len(description)
-		print(descriptionLen)
-		if descriptionLen < 160:
-			descriptionLenMessage = "Only " + str(descriptionLen) + "/180 of your characters have been used for your bio. Explain who you are!"
-			tips.append(descriptionLenMessage)
-		if "#" not in description:
-			descriptionNoHashtagsMessage = "No Hashtags Found. Try adding hashtags to your bio!"
-			tips.append(descriptionNoHashtagsMessage)
-		if location == "":
-			locationIsNoneMessage = "No location found! Add your location so people know where you are located"
-			tips.append(locationIsNoneMessage)
+		
+		# Programming tips
+		if twitterDescriptionLen < 160:
+			twitterDescriptionLenMessage = "Only " + str(twitterDescriptionLen) + "/180 of your characters have been used for your bio. Explain who you are!"
+			tips.append(twitterDescriptionLenMessage)
+		if "#" not in twitterDescription:
+			twitterDescriptionNoHashtagsMessage = "No Hashtags Found. Try adding hashtags to your bio!"
+			tips.append(twitterDescriptionNoHashtagsMessage)
+		if twitterLocation == "":
+			twitterLocationIsNoneMessage = "No location found! Add your location so people know where you are located"
+			tips.append(twitterLocationIsNoneMessage)
+		if websiteName in twitterName or twitterName in websiteName:
+			pass
+		else:
+			websiteNameMessage = "Website name and twitter name are not simular. Try to make it simular!"
+		if twitterDaysStatic >= 3:
+			twitterDaysStaticTip = "Followers on twitter haven't changed in the last " + str(twitterDaysStatic) + " days. Try posting more and engaging with people."
+			tips.append(twitterDaysStaticTip)
 
 		return tips
 
 	except Exception as e:
-		print('tips error')
+		print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntips error')
 		print(e)
 
 # Get History
@@ -90,7 +144,7 @@ def followerData(userReturn):
 
 			followersNameList.append(followerName)
 
-			if x > 20:
+			if x > 9:
 				break
 		print(followersLocatonList)
 		print(followersNameList)
@@ -191,7 +245,8 @@ def signIn():
 		# Getting followers data
 		followersData = followerData(userReturn)
 
-
+		# Getting website data
+		websitesData = websites(userReturn)
 
 	except Exception as e:
 		print("Signin error below")
@@ -204,6 +259,7 @@ def signIn():
 	userFinal.append(returnedTips)
 	userFinal.append(historyReturned)
 	userFinal.append(followersData)
+	userFinal.append(websitesData)
 
 	# print(userReturn)
 	print(userReturn)
@@ -224,18 +280,74 @@ def signOut():
 	return jsonify({ 'message' : returnValue})
 
 
+# Connect Website
+@api.route("/connect-website", methods=['GET','POST'])
+def connectWebsite():
+	userData = dict()
+	userReturn = []
+	try:
+		# Defining variables
+		websiteName = request.form['website_name']
+		websiteUrl = request.form['website_url']
+
+		if websiteName is not None and websiteUrl is not None:
+
+			websiteData = { "website-name" : websiteName, "website-url": websiteUrl }
+
+			# Putting them into sessions
+			session['websiteData'] = websiteData
+
+			# Importing data in firebase
+			user = session['user']
+
+			uid = user['localId']
+
+			database.child("users").child(uid).child("data").child("website").set(websiteData)
+			value = 'success'
+		else:
+			value = 'failed'
+		return jsonify(value)
+	except Exception as e:
+		print('Not dashboard')
+		print(e)
+
+		try:
+			print(request.get_json())
+
+			# Getting posted data
+			userData['website-name'] = request.get_json()['website-name']
+			userData['website-url'] = request.get_json()['website-url']
+
+			# Defining variables
+			websiteName = userData['website-name']
+			websiteUrl = userData['website-url']
+			websiteData = { "website-name" : websiteName, "website-url": websiteUrl }
+
+			# Importing data in firebase
+			database.child("users").child(uid).child("data").child("website").set(websiteData)
+
+			return jsonify(userData)
+		except Exception as e:
+			 print('opperation failed')
+			 print(e)
+			 value = 'failed'
+
+			 return jsonify(value)
+
+
+
 # GOOGLE SEARCH
 
-# Search Function
-@api.route("/search-form", methods=['GET', 'POST'])
-def searchForm():
-	print('searching')
+# # Search Function
+# @api.route("/search-form", methods=['GET', 'POST'])
+# def searchForm():
+# 	print('searching')
 
-	search = request.form['search']
-	connect = googleConnect(search)
-	print(connect)
+# 	search = request.form['search']
+# 	connect = googleConnect(search)
+# 	print(connect)
 
-	return jsonify(connect)
+# 	return jsonify(connect)
 
 
 

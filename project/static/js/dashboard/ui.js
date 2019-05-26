@@ -7,8 +7,8 @@ $(document).ready(function(){
       type : 'POST',
       url : '/setup-update',
       data : {
-        website_name : $('#website-name').val(),
-        website_url : $('#website-url').val()
+        website_name : $('#website-name-setup').val(),
+        website_url : $('#website-url-setup').val()
       },
       success: function (value) {
         // var evalue = JSON.parse(value);
@@ -20,12 +20,33 @@ $(document).ready(function(){
     });
     event.preventDefault();
   });
-
-
+  $('#connect-website-form').on('submit', function(event){
+    $.ajax({
+      type : 'POST',
+      url : '/connect-website',
+      data : {
+        website_name : $('#website-name').val(),
+        website_url : $('#website-url').val()
+      },
+      success: function (value) {
+        // var evalue = JSON.parse(value);
+        if(value == "success"){
+          location.reload();
+        } else if (value == 'failed') {
+          $('#connect-website-form-message').html(value)
+        }
+      }
+    });
+    event.preventDefault();
+  });
 });
 function dismissTip(e){
-  $(e).parent().remove();
-  element = document.getElementById('sidebar-status');
+  tipDiv = $(e).parent()
+  $(tipDiv).fadeOut( "normal", function() {
+    // Fade out complete
+  });
+  // $(e).parent().remove();
+  // element = document.getElementById('sidebar-status');
 
   // alert(element.childNodes.length);
 

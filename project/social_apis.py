@@ -1,5 +1,7 @@
 import pyrebase, json, requests
 from flask_oauthlib.client import OAuth
+import request as rq
+from bs4 import BeautifulSoup
 
 def firebaseConnect():
 	# Configuring connection to database
@@ -64,3 +66,8 @@ def twitterConnect():
 		
 	)
 	return twitter
+
+def websiteScrapping(website):
+	request = rq.get(website)
+	soup = BeautifulSoup(request.text, 'html.parser')
+	headerTags = soup.find('title').text

@@ -11,7 +11,7 @@ from project.decorators import login_required
 from project.users.views import creationFormating
 
 # Importing tips function
-from project.api.views import tips, history, followerData
+from project.api.views import tips, history, followerData, websites
 
 # Importing counter tool
 import itertools
@@ -62,6 +62,7 @@ def updateSetupAndWebsite():
 		website_name = request.form['website_name']
 		website_url = request.form['website_url']
 
+
 		if website_name != '' or website_url != '':
 			# Defining json equal to input
 			addWebsite = { "website-name" : website_name, "website-url": website_url }
@@ -71,8 +72,13 @@ def updateSetupAndWebsite():
 
 			# Getting database value
 			databaseData = dict(database.child("users").child(uid).child("data").get().val())
+
+
 			formatData = creationFormating(databaseData)
 			returnedTips = tips(formatData)
+			websites = websites(databaseData)
+			session['websiteData'] = websites
+
 			value = "success"
 			session['tips'] = returnedTips
 		else:		
@@ -331,11 +337,15 @@ def twitterOauthorized():
 			followersData = followerData(databaseData)
 			session['followersData'] = followersData
 
+			# Getting website data
+			websitesData = websites(databaseData)
+			session['websiteData'] = websiteData
+
 		except Exception as e:
 			print(e)
 			flash(f'Twitter Login Failed')
 			return redirect(url_for('dashboard.home'))
 			
-	return redirect(url_for('dashboard.home', userInfo=userData, followers=followers))
+	return redirect(url_for('dashboard.home'))
 
 	# Twitter Search Function Terms

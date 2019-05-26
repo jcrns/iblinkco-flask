@@ -4,63 +4,104 @@
 	<link href="{{ url_for('static', filename = 'css/dashboard/home.css') }}" rel="stylesheet">
 	{% if session['setup_complete'] == True%}
 	<div id="header-bar" class="bg-dark">
-		<p><span id="header-bar-name">{{ session['userTwitterData']['name'] }}</span><span id="header-bar-description">    {{ session['userTwitterData']['description'] }}</span></p>
+		<p><span id="header-bar-name"><b>{{ session['userTwitterData']['name'] }}</b></span><span id="header-bar-description">    {{ session['userTwitterData']['description'] }}</span></p>
 	</div>
 	<div class="row">
 
-	<!-- Sidebar -->
-	<div class="col-md-2 col-lg-2 h-auto d-inline-block bg-light" id="sidebar-status">
-		<ul class="list-unstyled components" id="sidebar-list">
-			<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 
-		</ul>
-		{% for tip in session['tips'] %}
-			<div class="card tip-card">
-				<button type="button" class="close dismiss-tip" data-dismiss="modal" aria-label="Close" onclick="dismissTip(this)">
-					<span aria-hidden="true">&times;</span>
-            	</button>
-				<h5>Tip</h5>
-				<p>{{ tip }}</p>
+		<!-- Sidebar -->
+		<div class="col-md-2 col-lg-2 h-auto d-inline-block bg-light fixed-left" id="sidebar-status">
+			<ul class="list-unstyled components" id="sidebar-list">
+				<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 
+			</ul>
+			{% for tip in session['tips'] %}
+				<div class="card tip-card">
+					<button type="button" class="close dismiss-tip" data-dismiss="modal" aria-label="Close" onclick="dismissTip(this)">
+						<span aria-hidden="true">&times;</span>
+	            	</button>
+					<h5>Tip</h5>
+					<p>{{ tip }}</p>
+				</div>
+			{% endfor %}
+		</div>
+		<!-- Summary -->
+		<div class="card col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
+			<div class="card-body">
+							<!-- Displaying user data -->
+			<h5>{{ session['email'] }}</h5>
+			<h6>{{ session['userTwitterData']['location'] }}</h6>
+			<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
+			<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
+			<!-- Followers History -->
+	        <canvas id="followers-history"></canvas>
+	        <p>
+	        	<small id="followers-avg"></small>
+	        	<small id="followers-min"></small>
+	        	<small id=followers-max></small>
+	        	<br>
+	        	{% if session['websiteData']['website-name'] != '' %}
+	        		<h5>Website</h5>
+	        		<p>Website Name: {{ session['websiteData']['website-name'] }}</p>
+	        		<p>Website Url: {{ session['websiteData']['website-url'] }}</p>
+	        	{% else %}
+	        		<button class="btn btn-light" data-toggle="modal" data-target="#connect-website">Connect Your Website</button>
+	        	{% endif %}
+	        </p>
 			</div>
-		{% endfor %}
-	</div>
-
-	<!-- Summary -->
-	<div class="card col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
-		<!-- Displaying user data -->
-		<h5>{{ session['email'] }}</h5>
-		<h6>{{ session['userTwitterData']['location'] }}</h6>
-		<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
-		<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
-
-		<!-- Followers History -->
-        <canvas id="followers-history"></canvas>
-        <p>
-        	<small id="followers-avg"></small>
-        	<small id="followers-min"></small>
-        	<small id=followers-max></small>
-        </p>
-	</div>
-	
-	<!-- Follower and Competition Divs -->
-	<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="followers-competition">
-		<div class="card">
-			<h4>Followers</h4>
-			<p>Learn about your followers</p>
-
-			<!-- Followers table -->
-			<table id="followers-data-table">
-				
-			</table>
 		</div>
-		<div class="card">
-			<h4>Competition</h4>
-			<p>Here's Your Competition and what platforms they're on! Go Research what they do!</p>
+		
+		<!-- Follower and Competition Divs -->
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="followers-competition">
+			<div class="card">
+				<h4>Followers</h4>
+				<p>Learn about your followers</p>
+
+				<!-- Followers table -->
+				<table id="followers-data-table"></table>
+			</div>
+			<div class="card">
+				<h4>Competition</h4>
+				<p>Here's Your Competition and what platforms they're on! Go Research what they do!</p>
+			</div>
 		</div>
 	</div>
-	</div>
+	    <!-- Connect Website  -->
+    <div class="modal fade" id="connect-website" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Connect Your Website</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="POST" id="connect-website-form">
+
+            	<!-- Website Name -->
+            	<p>
+            		<input type="text" id="website-name" name="website-name" placeholder="Website Name">
+            		<br>
+            		<small>Ex: MyWebsite</small>
+
+            	</p>
+
+            	<!-- Url Input -->
+            	<p>
+            		<input type="text" id="website-url" name="website-url" placeholder="Website URL">
+            		<br>
+            		<small>Ex: https://mywebsite.com or https://instagram/mywebsite </small>
+            	</p>
+
+            	<p><input class="btn btn-primary"type="submit" name="website-url" value="Connect!"></p>
+            	<p id="connect-website-form-message" class="text-danger"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 	{% else %}
 	  <!-- Setup Modal -->
-	<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal" id="setup-modal" tabindex="-1" role="dialog" aria-hidden="true">
 	  <div class="modal-dialog" role="document">
 	    <div class="modal-content">
 	      <div class="modal-header">
@@ -74,8 +115,9 @@
 
 	        <h4>Add Your Website! (Optional)</h4>
 	        <form method="POST" id="setup-connect-form">
-	        	<input id="website-name" placeholder="Website Name" type="text" name="website">
-	       		<input id="website-url" placeholder="Website URL"type="text" name="website">
+	        	<input id="website-name-setup" placeholder="Website Name" type="text" name="website-name-setup">
+	       		<input id="website-url-setup" placeholder="Website URL"type="text" name="website-url-setup">
+	       		<small>Website can be https://mywebsite.com or https://instagram/mywebsite </small>
 	       		<br>
 	       		<br>
 		        {% if session['userTwitterData'] %}
@@ -93,7 +135,6 @@
 	{% endif %}
 	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
 	<script type="text/javascript">
-		// alert("{{ session['followersData'][1][7] }}")
 		function followersData(){
 			// Follower data list
 			var followerNameList = [];

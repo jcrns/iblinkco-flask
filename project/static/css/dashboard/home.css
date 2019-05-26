@@ -31,12 +31,45 @@ html,body
 }
 #header-bar p {
   color: #fff;
-  margin-left: 3%;
+  /*margin-left: 3%;*/
+  font-size: 20px;
+  /*color: limegreen;*/
+  /*position: absolute;*/
+  text-align: center;
+  /* Starting position */
+  -moz-transform:translateX(100%);
+  -webkit-transform:translateX(100%);  
+  transform:translateX(100%);
+  /* Apply animation to this element */  
+  -moz-animation: header-bar 35s linear infinite;
+  -webkit-animation: header-bar 35s linear infinite;
+  animation: header-bar 35s linear infinite;
+}
+/* Move it (define the animation) */
+@-moz-keyframes header-bar {
+ 0%   { -moz-transform: translateX(100%); }
+ 100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes header-bar {
+ 0%   { -webkit-transform: translateX(100%); }
+ 100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes header-bar {
+ 0%   { 
+ -moz-transform: translateX(100%); /* Firefox bug fix */
+ -webkit-transform: translateX(100%); /* Firefox bug fix */
+ transform: translateX(100%);     
+ }
+ 100% { 
+ -moz-transform: translateX(-100%); /* Firefox bug fix */
+ -webkit-transform: translateX(-100%); /* Firefox bug fix */
+ transform: translateX(-100%); 
+ }
 }
 
 /*Summary*/
 #summary {
-  height: 70vh;
+  min-height: 70vh;
 }
 
 /*NON CONNECTED MODEL*/
