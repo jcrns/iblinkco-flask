@@ -39,17 +39,35 @@ $(document).ready(function(){
     });
     event.preventDefault();
   });
+    $('#niche-submit').on('submit', function(event){
+    $.ajax({
+      type : 'POST',
+      url : '/post-niche',
+      data : {
+        niche_text : $('#niche-text').val(),
+      },
+      success: function (value) {
+        if(value == "success"){
+          location.reload();
+        }
+      }
+    });
+    event.preventDefault();
+  });
 });
+niche-submit
 function dismissTip(e){
-  tipDiv = $(e).parent()
+  tipDiv = $(e).parent();
   $(tipDiv).fadeOut( "normal", function() {
     // Fade out complete
     $(e).parent().remove();
   });
-  element = document.getElementById('sidebar-status');
-
-  // alert(element.childNodes.length);
-
+  // numberOfTips = document.getElementsByClassName("tip-card").length;
+  // element = document.getElementById('sidebar-status');
+  // tipsNoneDifference = element.childNodes.length - numberOfTips
+  // console.log('tips dif: ' + tipsNoneDifference)
+  // console.log('element length: : ' + element.childNodes.length)
+  // console.log('numberOfTips: : ' + numberOfTips)
   if(element.childNodes.length == 6){
   // div = document.getElementById('sidebar-status');
     var noneDiv = document.createElement('p');

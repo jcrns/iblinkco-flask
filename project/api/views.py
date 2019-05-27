@@ -2,7 +2,7 @@
 from flask import Flask, session, redirect, Blueprint, request, jsonify, g, url_for, make_response
 
 # Firebase connection
-from project.social_apis import firebaseConnect, websiteScrapping
+from project.social_apis import firebaseConnect, websiteScrapping, googleSearch
 
 # Tools for for loops
 import itertools
@@ -82,8 +82,15 @@ def tips(userReturn):
 
 		# Trying to give other tips
 		try:
-			pass
-			
+			# Getting website title text
+			websiteHeader = userReturn['website']['header-text']
+
+			# Making both strings uppercase to identify same letters
+			websiteHeader = websiteHeader.upper()
+			websiteName = websiteName.upper()
+			if websiteName not in websiteHeader:
+				websiteInTitleMessage = "Your website/business name is not in your url. Try finding a domain that fits"
+				tips.append(websiteInTitleMessage)
 		except Exception as e:
 			print('no unrequired tips')
 			print(e)
@@ -265,18 +272,25 @@ def signIn():
 		# Getting website data
 		websitesData = websites(userReturn)
 
+		# Attempting to get competition results
+		try:
+			competition = database.child("users").child(uid).child("data").child("competition").get().val()
+		except Exception as e:
+			print(e)
+
 	except Exception as e:
 		print("Signin error below")
 		print(e)
 		userData['message'] = 'failed'
 		return jsonify(userData)
 
-	# print(user)
+	# Appending data to final list
 	userFinal.append(user)
 	userFinal.append(returnedTips)
 	userFinal.append(historyReturned)
 	userFinal.append(followersData)
 	userFinal.append(websitesData)
+	userFinal.append(competition)
 
 	# print(userReturn)
 	print(userReturn)
@@ -362,6 +376,35 @@ def connectWebsite():
 
 
 
+@api.route("/post-niche", methods=['GET','POST'])
+def postNiche():
+	try:
+		print('aaaaaa')
+		nichePost = request.form['niche_text']
+		
+		# Getting data from firebase
+		user = session['user']
+		uid = user['localId']
+		location = database.child("users").child(uid).child("data").child("twitter").child("userData").child("location").get().val()
+		
+		# Getting competitiors on google
+		searchResults = googleSearch(nichePost, location)
+		print(searchResults)
+		# Putting niche in database
+		database.child("users").child(uid).child("data").child("account").update({'niche' : nichePost })
+
+		# Putting competitors in database
+		database.child("users").child(uid).child("data").child("competition").set(searchResults)
+		print('aaaaaa')
+
+		# Putting data in session
+		session['competitiors'] = searchResults
+		value = 'success'
+	except Exception as e:
+		print('niche post failed')
+		print(e)
+		value = 'failed'
+	return value
 # GOOGLE SEARCH
 
 # # Search Function

@@ -3,10 +3,17 @@
 {% block content %}
 	<link href="{{ url_for('static', filename = 'css/dashboard/home.css') }}" rel="stylesheet">
 	{% if session['setup_complete'] == True%}
+<!-- 	<div id="header-nav">
+		<ul class="list-unstyled components">
+			<li>Home</li>
+			<li>Competition</li>
+			<li>Analytics</li>
+		</ul>
+	</div> -->
 	<div id="header-bar" class="bg-dark">
 		<p><span id="header-bar-name"><b>{{ session['userTwitterData']['name'] }}</b></span><span id="header-bar-description">    {{ session['userTwitterData']['description'] }}</span></p>
 	</div>
-	<div class="row">
+	<div class="row" id="home-row">
 
 		<!-- Sidebar -->
 		<div class="col-md-2 col-lg-2 h-auto d-inline-block bg-light fixed-left" id="sidebar-status">
@@ -24,20 +31,36 @@
 			{% endfor %}
 		</div>
 		<!-- Summary -->
-		<div class="card col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
-			<div class="card-body">
-							<!-- Displaying user data -->
-			<h5>{{ session['email'] }}</h5>
-			<h6>{{ session['userTwitterData']['location'] }}</h6>
-			<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
-			<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
-			<!-- Followers History -->
-	        <canvas id="followers-history"></canvas>
-	        <p>
-	        	<small id="followers-avg"></small>
-	        	<small id="followers-min"></small>
-	        	<small id=followers-max></small>
-	        </p>
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
+			<div class="card">
+				<!-- Displaying user data -->
+				<h5>{{ session['email'] }}</h5>
+				<h6>{{ session['userTwitterData']['location'] }}</h6>
+				<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
+				<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
+				<!-- Followers History -->
+		        <canvas id="followers-history"></canvas>
+		        <p>
+		        	<small id="followers-avg"></small>
+		        	<small id="followers-min"></small>
+		        	<small id=followers-max></small>
+		        </p>
+		      	{% if session['niche'] %}
+		        	<p>Your company is a {{ session['niche'] }}</p>
+		        {% else %}
+
+		        {% endif %}
+			</div>
+			<div class="card" id="competition">
+				<h4>Find Competition</h4>
+				<p>Click these links to find other businesses like yours</p>
+				{% if session['competition'] %}
+		        	<table id="competition-table"></table>
+		        {% else %}
+		        	<form method="POST" id="niche-submit">
+		        		<p>Your company is a <input id="niche-text" type="text" placeholder="Ex: Barbershop"><input id="niche-button" class="btn btn-primary" value="Submit" type="submit" ></p>
+		        	</form>
+		        {% endif %}
 			</div>
 		</div>
 		
@@ -139,6 +162,7 @@
 			var followerNameList = [];
 			var followerLocationList = [];
 
+			// Getting data from session
 			{% for followerName in session['followersData'][0] %}
 				followerName = '{{ followerName }}'
 				followerNameList.push(followerName)
@@ -194,7 +218,7 @@
 			var dateList = [] ;
 			var followerNumberList = [];
 
-			// For loops
+			// Getting data from session
 			{% for follower in session['history'][0] %}
 				follower = '{{ follower }}'
 				dateList.push(follower)
@@ -242,6 +266,58 @@
 			$('#followers-max').html('Max: ' + followerCountMax)
 		}
 		followersGraph();
+		function competition(){
+
+			// Defining list variables
+			var searchTitleList = [];
+			var searchUrlList = [];
+
+			// Getting data from session
+			{% for title in session['competition'][0] %}
+				title = '{{ title }}'
+				searchTitleList.push(title)
+			{% endfor %}
+
+			{% for url in session['competition'][1] %}
+				url = '{{ url }}'
+				searchUrlList.push(url)
+			{% endfor %}
+
+			// Putting data in table
+			var opperationTable = document.getElementById('competition-table'); 
+
+			var titleRow = document.createElement('tr');
+
+
+			var titleName = document.createElement('td');
+			titleName.innerHTML = "<b>Title</b>";
+
+			var titleUrl = document.createElement('td');
+			titleUrl.innerHTML = "<b>Url</b>";
+
+			titleRow.append(titleName)
+			titleRow.append(titleUrl)
+			opperationTable.appendChild(titleRow)
+
+			for(var i = 0; i < searchTitleList.length; i++){
+
+				// Creating Elements
+          		var itemRow = document.createElement('tr');
+          		var itemDataRowName = document.createElement('td');
+          		var itemDataRowUrl = document.createElement('td');
+
+          		// Adding content
+          		itemDataRowUrl.innerHTML = "<a href='" + searchUrlList[i] + "'' target='_blank'> " + searchUrlList[i] + "</a>";
+          		
+          		itemDataRowName.innerHTML = searchTitleList[i];
+
+          		// Appending content
+          		itemRow.appendChild(itemDataRowName);
+          		itemRow.appendChild(itemDataRowUrl);
+          		opperationTable.appendChild(itemRow);
+			}
+		}
+		competition();
 // new Chart(document.getElementById("followers-history"), {
 //   type: 'line',
 //   data: {

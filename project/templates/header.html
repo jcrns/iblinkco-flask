@@ -103,11 +103,7 @@
         {% block content %} {% endblock %}
     </body>
     <!-- footer for page -->
-    {% if url_for(request.endpoint) == '/dashboard' %}
-
-    {% else %}
-        <footer id="footer">
-            <p class="mt-5 mb-3 text-center" style="color:#000; bottom: 0px;">iBlinkco, Copyright © 2018</p>
-        </footer>
-    {% endif %}
+    <footer id="footer">
+        <p class="mt-5 mb-3 text-center" style="color:#000; bottom: 0px;">iBlinkco, Copyright © 2018</p>
+    </footer>
 </html>

@@ -29,12 +29,15 @@ def creationFormating(returnedData):
     session['website_url'] = websiteUrl
 
 
-    # Checking for complete setup
+    # Attempting to format unrequired data
     try:
         setup_complete = returnedData['account']['setup_complete']
         session['setup_complete'] = setup_complete
+        niche = returnedData['account']['niche']
+        session['niche'] = niche
+
     except Exception as e:
-        print("Setup incomplete")
+        print("Setup incomplete\n\n\n\n\n")
         print(e)
 
     # Checking for twitter
@@ -141,6 +144,15 @@ def login():
         session['websiteData'] = finalizedData[5]
         print(finalizedData[5])
 
+        try:
+            print('sssssss\n\n\n\n\n\n\n\n\n')
+            session['competition'] = finalizedData[6]  
+            print(session['competition'])
+        except Exception as e:
+             print(e)
+             print('sssssss\n\n\n\n\n\n\n\n\n')
+
+             print('no competition')
         try:
 
             createFormat = creationFormating(returnedData)
