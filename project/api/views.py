@@ -7,6 +7,9 @@ from project.social_apis import firebaseConnect, websiteScrapping, googleSearch
 # Tools for for loops
 import itertools
 
+# Importing random
+import random
+
 api = Blueprint('api', __name__, template_folder='templates')
 
 # FIREBASE AUTHENTICATION
@@ -49,14 +52,22 @@ def tips(userReturn):
 	try:
 		# Defining variables
 
+
 		# Twitter variables
 		twitterDescription = userReturn['twitter']['userData']['description']
 		twitterName = userReturn['twitter']['userData']['name']
 		twitterLocation = userReturn['twitter']['userData']['location']
+		twitterFollowing = userReturn['twitter']['userData']['friends_count']
 
-		# Website variables
-		websiteName = userReturn['website']['website-name']
-		websiteUrl = userReturn['website']['website-url']
+		# Trying to get website variables
+		try:
+			websiteLinks = userReturn['website']['links']
+			websiteName = userReturn['website']['website-name']
+			websiteUrl = userReturn['website']['website-url']
+			
+		except Exception as e:
+			print('Website tips not working/setup')
+			print(e)
 
 		twitterDescriptionLen = len(twitterDescription)
 
@@ -91,6 +102,18 @@ def tips(userReturn):
 			if websiteName not in websiteHeader:
 				websiteInTitleMessage = "Your website/business name is not in your url. Try finding a domain that fits"
 				tips.append(websiteInTitleMessage)
+
+			if websiteName in twitterName or twitterName in websiteName:
+				pass
+			else:
+				websiteNameMessage = "Website name and twitter name are not simular. Try to make it simular!"			
+			x = 0
+			for link in websiteLinks:
+				if 'about' in link:
+					x += 1
+			if x == len(websiteLinks):
+				websiteLinkTips = "Doesn't seem linke you have an about link on your homepage. Tell people who you are!"
+				tips.append(websiteLinkTips)
 		except Exception as e:
 			print('no unrequired tips')
 			print(e)
@@ -107,14 +130,14 @@ def tips(userReturn):
 		if twitterLocation == "":
 			twitterLocationIsNoneMessage = "No location found! Add your location so people know where you are located"
 			tips.append(twitterLocationIsNoneMessage)
-		if websiteName in twitterName or twitterName in websiteName:
-			pass
-		else:
-			websiteNameMessage = "Website name and twitter name are not simular. Try to make it simular!"
 		if twitterDaysStatic >= 3:
 			twitterDaysStaticTip = "Followers on twitter haven't changed in the last " + str(twitterDaysStatic) + " days. Try posting more and engaging with people."
 			tips.append(twitterDaysStaticTip)
+		if twitterFollowing < 100:
+			twitterFollowingTips = "You are only following " + str(twitterFollowing) + " people. Try following more people in your niche."
+			tips.append(twitterFollowingTips)
 
+		print(tips)
 		return tips
 
 	except Exception as e:
@@ -221,6 +244,7 @@ def signUp():
 	
 	# Appending data into list ready to return
 	userReturn.append(userData)
+	userReturn.append(user)
 	
 	print(userReturn)
 	userData['message'] = 'success'
@@ -249,6 +273,7 @@ def signIn():
 	try:
 		# Attemptingto sign in to backend
 		user = authe.sign_in_with_email_and_password(email, password)
+		print(user)
 
 		# Assigning uid as a variable which will be used to go through branched in for loop
 		uid = user['localId']
@@ -374,7 +399,32 @@ def connectWebsite():
 
 			 return jsonify(value)
 
+# Disconnect website function
+@api.route("/disconnect-website", methods=['GET','POST'])
+def disconnectWebsite():
+	try:
 
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+		# Returning website data to default 
+		addWebsite = { "website-name" : '', "website-url" : '' }
+		database.child("users").child(uid).child("data").child("website").set(addWebsite)
+
+		# Trying to put data in session
+		try:
+			session['websiteData'] = dict(database.child("users").child(uid).child("data").child("website").get().val())
+		except Exception as e:
+			 print('failed to add session')
+			 print(e)
+
+		value = 'success'
+	except Exception as e:
+		 print('Disconnect Failed')
+		 print(e)
+
+	return value
 
 @api.route("/post-niche", methods=['GET','POST'])
 def postNiche():
@@ -388,7 +438,7 @@ def postNiche():
 		location = database.child("users").child(uid).child("data").child("twitter").child("userData").child("location").get().val()
 		
 		# Getting competitiors on google
-		searchResults = googleSearch(nichePost, location)
+		searchResults = googleSearch(nichePost, location, 1)
 		print(searchResults)
 		# Putting niche in database
 		database.child("users").child(uid).child("data").child("account").update({'niche' : nichePost })
@@ -405,6 +455,34 @@ def postNiche():
 		print(e)
 		value = 'failed'
 	return value
+
+@api.route("/refresh-search", methods=['GET','POST'])
+def refreshSearch():
+	try:
+		
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+		# Getting parameter data from firebase
+		niche = database.child("users").child(uid).child("data").child("account").child("niche").get().val()
+		location = database.child("users").child(uid).child("data").child("twitter").child("userData").child("location").get().val()
+
+		# Running function
+		randomInt = random.randint(1,7)
+		searchResults = googleSearch(niche, location, randomInt)
+
+		# Putting data back in firebase
+		database.child("users").child(uid).child("data").child("competition").set(searchResults)
+		
+		value = 'success'
+	except Exception as e:
+		print('Refresh search failed')
+		print(e)
+		value = 'failed'
+
+	return value
+
 # GOOGLE SEARCH
 
 # # Search Function

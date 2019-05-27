@@ -1,6 +1,9 @@
 // Ajac Functions
 $(document).ready(function(){
-  $('#myModal').modal('show');
+
+  // Showing setup modal
+  $('#setup-modal').modal('show');
+
   // Setup Form
   $('#setup-connect-form').on('submit', function(event){
     $.ajax({
@@ -20,6 +23,8 @@ $(document).ready(function(){
     });
     event.preventDefault();
   });
+
+  // Connecting website form
   $('#connect-website-form').on('submit', function(event){
     $.ajax({
       type : 'POST',
@@ -39,7 +44,9 @@ $(document).ready(function(){
     });
     event.preventDefault();
   });
-    $('#niche-submit').on('submit', function(event){
+
+  // Submiting niche
+  $('#niche-submit').on('submit', function(event){
     $.ajax({
       type : 'POST',
       url : '/post-niche',
@@ -54,8 +61,46 @@ $(document).ready(function(){
     });
     event.preventDefault();
   });
+
+  // Disconnecting website
+  $('#disconnect-website').click(function() {
+    $.ajax({
+      type: 'POST',
+      url : '/disconnect-website',
+      success: function (value) {
+        if(value == "success"){
+          location.reload();
+        }
+      } 
+    });
+  });
+
+  // Find competition refresh
+  $('#find-competition-refresh').click(function() {
+    $.ajax({
+      type: 'POST',
+      url : '/refresh-search',
+      success: function (value) {
+        if(value == "success"){
+          location.reload();
+        }
+      } 
+    });
+  });
 });
-niche-submit
+function refreshCompetition() {
+    alert('aa')
+    $.ajax({
+    type: 'POST',
+    url : '/refresh-search',
+    success: function (value) {
+      if(value == "success"){
+        location.reload();
+      }
+    } 
+  });
+}
+// Removing tip
 function dismissTip(e){
   tipDiv = $(e).parent();
   $(tipDiv).fadeOut( "normal", function() {

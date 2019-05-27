@@ -105,10 +105,18 @@ html,body
   height: 75px;
   margin-left: 5%;
 }
+
+/*Refresh buttons*/
 #refresh-twitter {
   margin-left: 1%;
   width: 35px;
   height: 35px;
+}
+#refresh-website {
+  margin-left: 1%;
+  margin-top: -0.5%;
+  width: 25px;
+  height: 25px;
 }
 
 /*TIPS*/

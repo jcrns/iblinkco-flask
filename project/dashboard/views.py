@@ -51,49 +51,68 @@ def updateSetupAndWebsite():
 
 		# Adding Setup Complete to Database
 		database.child("users").child(uid).child("data").child("account").update({ "setup_complete": True })
+		print('ssss')
 
 		session['setup_complete'] = True
+		print('ssss')
+		value = "success"
+
 	except Exception as e:
 		print("twiiter not connected")
 		value = "Twitter not connect"
-		return jsonify(value)
+		return value
 	try:
 		# Defining variables equal to form input
 		website_name = request.form['website_name']
 		website_url = request.form['website_url']
 
 
-		if website_name != '' or website_url != '':
 
-			websiteScrap = websiteScrapping(website_url)
+		websiteScrap = websiteScrapping(website_url)
 
-			# Defining json equal to input
-			addWebsite = { "website-name" : website_name, "website-url" : website_url, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
+		# Defining json equal to input
+		addWebsite = { "website-name" : website_name, "website-url" : website_url, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
 
-			session['websiteData'] = websiteData
+		session['websiteData'] = websiteData
 
-			# Putting json in pyrebase
-			database.child("users").child(uid).child("data").child("website").set(addWebsite)
-
-			# Getting database value
-			databaseData = dict(database.child("users").child(uid).child("data").get().val())
-
-
-			formatData = creationFormating(databaseData)
-			returnedTips = tips(formatData)
-			websites = websites(databaseData)
-			session['websiteData'] = websites
-
-			value = "success"
-			session['tips'] = returnedTips
-		else:		
-			value="website form incomplete"
+		# Putting json in pyrebase
+		database.child("users").child(uid).child("data").child("website").set(addWebsite)
 	except Exception as e:
+		# Defining json equal to input
+		addWebsite = { "website-name" : '', "website-url" : '' }
+
+		# Putting json in pyrebase
+		database.child("users").child(uid).child("data").child("website").set(addWebsite)
+
+		websiteData = dict(database.child("users").child(uid).child("data").child("website").get().val())
+
+		session['websiteData'] = websiteData
 		print("No website")
 		print(e)
 
+	# Trying to get and save required data
+	try:
+		# Getting database value
+		databaseData = dict(database.child("users").child(uid).child("data").get().val())
+		print('aaaaaa')
 
-	return jsonify(value)
+		formatData = creationFormating(databaseData)
+		print('aaaaaa')
+		returnedTips = tips(formatData)
+		websites = websites(databaseData)
+		print('websites\n\n\n\n\n\n\n\n')
+		print(websites)
+
+		session['websiteData'] = websites
+
+		value = "success"
+		session['tips'] = returnedTips
+	except Exception as e:
+		print("Session couldn't save")
+		print(e)
+
+
+	return value
 
 
 # TWITTER OAUTH
@@ -308,7 +327,11 @@ def twitterOauthorized():
 
 		try:
 			# Attemptingto sign in to backend
+			print('aaa')
+			print('session')
+			print(session['user'])
 			user = session['user']
+			print('aaa')
 
 			# Assigning uid as a variable which will be used to go through branched in for loop
 			uid = user['localId']
@@ -326,26 +349,37 @@ def twitterOauthorized():
 			database.child("users").child(uid).child("data").child("twitter").child("history").child("followers").update({ str(date_time) : userFollowers })
 			database.child("users").child(uid).child("data").child("twitter").child("history").child("following").update({ str(date_time) : userFollowing })
 
+			print('aaaa')
 			# Formating Twitter Data
 			databaseData = dict(database.child("users").child(uid).child("data").get().val())
 			formatData = creationFormating(databaseData)
+			print('aaaa')
 
 			# Getting Tips
 			returnedTips = tips(databaseData)
 			session['tips'] = returnedTips
+			print('aaaa')
 
 			# Getting history
 			historyReturned = history(databaseData)
 			session['history'] = historyReturned
+			print('aaaa')
 
 			# Getting followers' data
 			followersData = followerData(databaseData)
 			session['followersData'] = followersData
+			print('aaall')
 
-			# Getting website data
-			websiteData = dict(database.child("users").child(uid).child("data").child("website").get().val())
-			session['websiteData'] = websiteData
+			# Unrequired data for setup
+			try:
+				# Getting website data
+				websiteData = dict(database.child("users").child(uid).child("data").child("website").get().val())
+				session['websiteData'] = websiteData
+			except Exception as e:
+				print(e)
+				print('website not connected')
 
+			print('aaaa')
 		except Exception as e:
 			print(e)
 			flash(f'Twitter Login Failed')

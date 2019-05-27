@@ -2,7 +2,7 @@
 {% extends "header.html" %}
 {% block content %}
 	<link href="{{ url_for('static', filename = 'css/dashboard/home.css') }}" rel="stylesheet">
-	{% if session['setup_complete'] == True%}
+	{% if session['setup_complete'] == True %}
 <!-- 	<div id="header-nav">
 		<ul class="list-unstyled components">
 			<li>Home</li>
@@ -20,23 +20,25 @@
 			<ul class="list-unstyled components" id="sidebar-list">
 				<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 
 			</ul>
-			{% for tip in session['tips'] %}
-				<div class="card tip-card">
-					<button type="button" class="close dismiss-tip" data-dismiss="modal" aria-label="Close" onclick="dismissTip(this)">
-						<span aria-hidden="true">&times;</span>
-	            	</button>
-					<h5>Tip</h5>
-					<p>{{ tip }}</p>
-				</div>
-			{% endfor %}
+			{% if session['tips'] %}
+				{% for tip in session['tips'] %}
+					<div class="card tip-card">
+						<button type="button" class="close dismiss-tip" data-dismiss="modal" aria-label="Close" onclick="dismissTip(this)">
+							<span aria-hidden="true">&times;</span>
+		            	</button>
+						<h5>Tip</h5>
+						<p>{{ tip }}</p>
+					</div>
+				{% endfor %}
+			{% endif %}
 		</div>
 		<!-- Summary -->
-		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="summary">
-			<div class="card">
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+			<div class="card" id="summary">
 				<!-- Displaying user data -->
 				<h5>{{ session['email'] }}</h5>
 				<h6>{{ session['userTwitterData']['location'] }}</h6>
-				<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh-twitter.png') }}"></a></span></h1>
+				<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h1>
 				<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
 				<!-- Followers History -->
 		        <canvas id="followers-history"></canvas>
@@ -52,7 +54,7 @@
 		        {% endif %}
 			</div>
 			<div class="card" id="competition">
-				<h4>Find Competition</h4>
+				<h4>Find Competition <span><a id="find-competition-refresh" href="#" onclick="refreshCompetition();"><img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
 				<p>Click these links to find other businesses like yours</p>
 				{% if session['competition'] %}
 		        	<table id="competition-table"></table>
@@ -65,23 +67,28 @@
 		</div>
 		
 		<!-- Follower and Competition Divs -->
-		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="followers-competition">
-			<div class="card">
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+			<div class="card" id="followers">
 				<h4>Followers</h4>
 				<p>Learn about your followers</p>
 
 				<!-- Followers table -->
-				<table id="followers-data-table"></table>
+				<table id="followers-data-table" class="table"></table>
 			</div>
 			<div class="card" id="website">
 				<h4>Website</h4>
 				{% if session['websiteData']['website-name'] != '' %}
-	        		<p><b>{{ session['websiteData']['website-name'] }}</b></p>
-	        		<p>{{ session['websiteData']['header-text'] }}</p>
-	        		<small>{{ session['websiteData']['website-url'] }}</small>
-	        		<p></p>
+					<p><strong>{{ session['websiteData']['header-text'] }}</strong></p>
+	        		<p>{{ session['websiteData']['website-name'] }}</p>
+	       			<h6>Your website urls (found on requested page)</h6>
+	        		{% for link in session['websiteData']['links'] %}
+	        			<p>{{ link }}</p>
+	        		{% endfor %}
 	        	{% else %}
 	        		<button class="btn btn-light" data-toggle="modal" data-target="#connect-website">Connect Your Website</button>
+	        	{% endif %}
+	        	{% if session['websiteData']['website-name'] != '' %}
+	        		<button class="btn btn-secondary" id="disconnect-website">Disconnect</button>
 	        	{% endif %}
 			</div>
 		</div>
@@ -163,53 +170,54 @@
 			var followerLocationList = [];
 
 			// Getting data from session
-			{% for followerName in session['followersData'][0] %}
-				followerName = '{{ followerName }}'
-				followerNameList.push(followerName)
-			{% endfor %}
+			{% if session['followersData'] %}
+				{% for followerName in session['followersData'][0] %}
+					followerName = '{{ followerName }}'
+					followerNameList.push(followerName)
+				{% endfor %}
 
-			{% for followerLocation in session['followersData'][1] %}
-				followerLocation = '{{ followerLocation }}'
-				followerLocationList.push(followerLocation)
-			{% endfor %}
+				{% for followerLocation in session['followersData'][1] %}
+					followerLocation = '{{ followerLocation }}'
+					followerLocationList.push(followerLocation)
+				{% endfor %}
+				
+				var opperationTable = document.getElementById('followers-data-table'); 
 
-			
-			var opperationTable = document.getElementById('followers-data-table'); 
-
-			var titleRow = document.createElement('tr');
-          	titleRow.setAttribute('class', "bg-info");
+				var titleRow = document.createElement('tr');
+	          	titleRow.setAttribute('class', "bg-info");
 
 
-			var titleName = document.createElement('td');
-			titleName.innerHTML = "<span style='color: #fff;'>Name</span>";
+				var titleName = document.createElement('td');
+				titleName.innerHTML = "<span style='color: #fff;'>Name</span>";
 
-			var titleLocation = document.createElement('td');
-			titleLocation.innerHTML = "<span style='color: #fff;'>Location</span>";
+				var titleLocation = document.createElement('td');
+				titleLocation.innerHTML = "<span style='color: #fff;'>Location</span>";
 
-			titleRow.append(titleName)
-			titleRow.append(titleLocation)
-			opperationTable.appendChild(titleRow)
+				titleRow.append(titleName)
+				titleRow.append(titleLocation)
+				opperationTable.appendChild(titleRow)
 
-			for(var i = 0; i < followerNameList.length; i++){
+				for(var i = 0; i < followerNameList.length; i++){
 
-				// Creating Elements
-          		var itemRow = document.createElement('tr');
-          		var itemDataRowName = document.createElement('td');
-          		var itemDataRowLocation = document.createElement('td');
+					// Creating Elements
+	          		var itemRow = document.createElement('tr');
+	          		var itemDataRowName = document.createElement('td');
+	          		var itemDataRowLocation = document.createElement('td');
 
-          		// Adding content
-          		if (followerLocationList[i] == '') {
-          			itemDataRowLocation.innerHTML = "No Location";
-          		} else{
-          			itemDataRowLocation.innerHTML = followerLocationList[i];
-          		}
-          		itemDataRowName.innerHTML = followerNameList[i];
+	          		// Adding content
+	          		if (followerLocationList[i] == '') {
+	          			itemDataRowLocation.innerHTML = "No Location";
+	          		} else{
+	          			itemDataRowLocation.innerHTML = followerLocationList[i];
+	          		}
+	          		itemDataRowName.innerHTML = followerNameList[i];
 
-          		// Appending content
-          		itemRow.appendChild(itemDataRowName);
-          		itemRow.appendChild(itemDataRowLocation);
-          		opperationTable.appendChild(itemRow);
-			}
+	          		// Appending content
+	          		itemRow.appendChild(itemDataRowName);
+	          		itemRow.appendChild(itemDataRowLocation);
+	          		opperationTable.appendChild(itemRow);
+				}
+			{% endif %}
 		}
 		followersData();
 		function followersGraph(){
@@ -218,52 +226,55 @@
 			var dateList = [] ;
 			var followerNumberList = [];
 
-			// Getting data from session
-			{% for follower in session['history'][0] %}
-				follower = '{{ follower }}'
-				dateList.push(follower)
-			{% endfor %}
+			{% if session['history'] %}
+				// Getting data from session
+				{% for follower in session['history'][0] %}
+					follower = '{{ follower }}'
+					dateList.push(follower)
+				{% endfor %}
 
-			{% for follower in session['history'][1] %}
-				follower = '{{ follower }}'
-				followerNumberList.push(follower)
-			{% endfor %}
+				{% for follower in session['history'][1] %}
+					follower = '{{ follower }}'
+					followerNumberList.push(follower)
+				{% endfor %}
+				
+				new Chart(document.getElementById("followers-history"), {
+				  type: 'line',
+				  data: {
+				    labels: dateList,
+				    datasets: [{ 
+				        data: followerNumberList,
+				        label: "Twitter",
+				        borderColor: "#28aae1",
+				        fill: false
+				      }
+				    ]
+				  },
+				  options: {
+				    title: {
+				      display: true,
+				      text: 'Your Trend of Followers'
+				    }
+				  }
+				});
+
+				// Analyzing data
+				var total = 0;
+				for(var i = 0; i < followerNumberList.length; i++){
+					total += parseInt(followerNumberList[i]);
+				}
+				var followerCountAvg = total / followerNumberList.length;
+				
+				var followerCountMin = Math.min.apply(null, followerNumberList);
+
+				var followerCountMax = Math.max.apply(null, followerNumberList);
+
+				// Entering data to html
+				$('#followers-avg').html('Average: ' + followerCountAvg)
+				$('#followers-min').html('Min: ' + followerCountMin)
+				$('#followers-max').html('Max: ' + followerCountMax)
+			{% endif %}
 			
-			new Chart(document.getElementById("followers-history"), {
-			  type: 'line',
-			  data: {
-			    labels: dateList,
-			    datasets: [{ 
-			        data: followerNumberList,
-			        label: "Twitter",
-			        borderColor: "#28aae1",
-			        fill: false
-			      }
-			    ]
-			  },
-			  options: {
-			    title: {
-			      display: true,
-			      text: 'Your Trend of Followers'
-			    }
-			  }
-			});
-
-			// Analyzing data
-			var total = 0;
-			for(var i = 0; i < followerNumberList.length; i++){
-				total += parseInt(followerNumberList[i]);
-			}
-			var followerCountAvg = total / followerNumberList.length;
-			
-			var followerCountMin = Math.min.apply(null, followerNumberList);
-
-			var followerCountMax = Math.max.apply(null, followerNumberList);
-
-			// Entering data to html
-			$('#followers-avg').html('Average: ' + followerCountAvg)
-			$('#followers-min').html('Min: ' + followerCountMin)
-			$('#followers-max').html('Max: ' + followerCountMax)
 		}
 		followersGraph();
 		function competition(){
@@ -272,50 +283,53 @@
 			var searchTitleList = [];
 			var searchUrlList = [];
 
-			// Getting data from session
-			{% for title in session['competition'][0] %}
-				title = '{{ title }}'
-				searchTitleList.push(title)
-			{% endfor %}
+			{% if session['competition'] %}
+				// Getting data from session
+				{% for title in session['competition'][0] %}
+					title = '{{ title }}'
+					searchTitleList.push(title)
+				{% endfor %}
 
-			{% for url in session['competition'][1] %}
-				url = '{{ url }}'
-				searchUrlList.push(url)
-			{% endfor %}
+				{% for url in session['competition'][1] %}
+					url = '{{ url }}'
+					searchUrlList.push(url)
+				{% endfor %}
 
-			// Putting data in table
-			var opperationTable = document.getElementById('competition-table'); 
+				// Putting data in table
+				var opperationTable = document.getElementById('competition-table'); 
 
-			var titleRow = document.createElement('tr');
+				var titleRow = document.createElement('tr');
 
 
-			var titleName = document.createElement('td');
-			titleName.innerHTML = "<b>Title</b>";
+				var titleName = document.createElement('td');
+				titleName.innerHTML = "<b>Title</b>";
 
-			var titleUrl = document.createElement('td');
-			titleUrl.innerHTML = "<b>Url</b>";
+				var titleUrl = document.createElement('td');
+				titleUrl.innerHTML = "<b>Url</b>";
 
-			titleRow.append(titleName)
-			titleRow.append(titleUrl)
-			opperationTable.appendChild(titleRow)
+				titleRow.append(titleName)
+				titleRow.append(titleUrl)
+				opperationTable.appendChild(titleRow)
 
-			for(var i = 0; i < searchTitleList.length; i++){
+				for(var i = 0; i < searchTitleList.length; i++){
 
-				// Creating Elements
-          		var itemRow = document.createElement('tr');
-          		var itemDataRowName = document.createElement('td');
-          		var itemDataRowUrl = document.createElement('td');
+					// Creating Elements
+	          		var itemRow = document.createElement('tr');
+	          		var itemDataRowName = document.createElement('td');
+	          		var itemDataRowUrl = document.createElement('td');
 
-          		// Adding content
-          		itemDataRowUrl.innerHTML = "<a href='" + searchUrlList[i] + "'' target='_blank'> " + searchUrlList[i] + "</a>";
-          		
-          		itemDataRowName.innerHTML = searchTitleList[i];
+	          		// Adding content
+	          		itemDataRowUrl.innerHTML = "<a href='" + searchUrlList[i] + "'' target='_blank'> " + searchUrlList[i] + "</a>";
+	          		
+	          		itemDataRowName.innerHTML = searchTitleList[i];
 
-          		// Appending content
-          		itemRow.appendChild(itemDataRowName);
-          		itemRow.appendChild(itemDataRowUrl);
-          		opperationTable.appendChild(itemRow);
-			}
+	          		// Appending content
+	          		itemRow.appendChild(itemDataRowName);
+	          		itemRow.appendChild(itemDataRowUrl);
+	          		opperationTable.appendChild(itemRow);
+				}
+			{% endif %}
+			
 		}
 		competition();
 // new Chart(document.getElementById("followers-history"), {

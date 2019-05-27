@@ -65,16 +65,19 @@ def websiteScrapping(website):
 	hrefs = soup.find_all('a')
 	for href in hrefs:
 		link = href['href']	
+		if link == '/':
+			continue
 		if '/' in link:
 			fullUrl = str(website) + str(link)
-			linkList.append(link)
+			linkList.append(fullUrl)
+
 
 	returnList.append(headerTags)
 	returnList.append(linkList)
 
 	return returnList
 
-def googleSearch(niche, location):
+def googleSearch(niche, location, start):
 	title_list = []
 	link_list = []
 
@@ -87,7 +90,7 @@ def googleSearch(niche, location):
 		"q": userInput,
 		"cx": '001120039411021127475:a4iq_yrptao',
 		"key": 'AIzaSyCoVGR41c_O-q7Xz21FduFHtmm37azYTjQ',
-		"start": 1,
+		"start": start,
 		# "siteSearch": "https://instagram.com"
 	}
 	page = requests.request("GET", url, params=parameters)

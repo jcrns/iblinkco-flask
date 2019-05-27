@@ -19,14 +19,19 @@ def creationFormating(returnedData):
     email = returnedData['account']['email']
     firstname = returnedData['account']['firstname']
     lastname = returnedData['account']['lastname']
-    websiteName = returnedData['website']['website-name']
-    websiteUrl = returnedData['website']['website-url']
+    try:
+        websiteName = returnedData['website']['website-name']
+        session['website_name'] = websiteName
+
+        websiteUrl = returnedData['website']['website-url']
+        session['website_url'] = websiteUrl
+    except Exception as e:
+        print(e)
+        print('website not connected')
 
     # Storing returned data
     session['name'] = str(firstname) + " " + str(lastname)
     session['email'] = email
-    session['website_name'] = websiteName
-    session['website_url'] = websiteUrl
 
 
     # Attempting to format unrequired data
@@ -93,15 +98,13 @@ def register():
             lastname = returnedData[0]['lastname']
 
             # Storing returned data
+            session['user'] = returnedData[1]
             session['name'] = str(firstname) + " " + str(lastname)
             session['email'] = email
-            session['instagramData'] = instagramData
-            session['twitterData'] = twitterData
-
 
             # Alerting user account was created
             flash(f'Account Created for {form.email.data} !', 'success')
-            return redirect(url_for('homepage.home'))
+            return redirect(url_for('dashboard.home'))
         except Exception as e:
             print(e)
             flash(f'Failed to Create Account')
@@ -132,6 +135,8 @@ def login():
         session['user'] = finalizedData[1]
         session['tips'] = finalizedData[2]
         returnedData = finalizedData[0]
+
+        print(finalizedData[1])
         # print(returnedData)
 
         # Getting history
@@ -143,6 +148,8 @@ def login():
         # Getting website data
         session['websiteData'] = finalizedData[5]
         print(finalizedData[5])
+
+        print(finalizedData[2])
 
         try:
             print('sssssss\n\n\n\n\n\n\n\n\n')
@@ -157,6 +164,8 @@ def login():
 
             createFormat = creationFormating(returnedData)
             session.permanent = True
+            print(finalizedData[2])
+            print('aaaa')
 
             return redirect(url_for('dashboard.home'))
 
