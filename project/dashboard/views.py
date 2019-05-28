@@ -66,17 +66,19 @@ def updateSetupAndWebsite():
 		website_name = request.form['website_name']
 		website_url = request.form['website_url']
 
-
+		print(website_url)
 
 		websiteScrap = websiteScrapping(website_url)
 
+		print('formweb\n\n\n\n\n\n\n\n\n\n\n\n')
 		# Defining json equal to input
 		addWebsite = { "website-name" : website_name, "website-url" : website_url, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
 
-		session['websiteData'] = websiteData
-
 		# Putting json in pyrebase
 		database.child("users").child(uid).child("data").child("website").set(addWebsite)
+
+		# Session
+		session['websiteData'] = addWebsite
 	except Exception as e:
 		# Defining json equal to input
 		addWebsite = { "website-name" : '', "website-url" : '' }
@@ -97,16 +99,16 @@ def updateSetupAndWebsite():
 		print('aaaaaa')
 
 		formatData = creationFormating(databaseData)
-		print('aaaaaa')
-		returnedTips = tips(formatData)
+		print('aaaaaa\n\n\n\n\n\n\n\n\n')
+		
+		returnedTips = tips(databaseData)
+		session['tips'] = returnedTips
+
 		websites = websites(databaseData)
 		print('websites\n\n\n\n\n\n\n\n')
 		print(websites)
 
-		session['websiteData'] = websites
-
 		value = "success"
-		session['tips'] = returnedTips
 	except Exception as e:
 		print("Session couldn't save")
 		print(e)

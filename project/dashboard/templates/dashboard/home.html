@@ -54,7 +54,7 @@
 		        {% endif %}
 			</div>
 			<div class="card" id="competition">
-				<h4>Find Competition <span><a id="find-competition-refresh" href="#" onclick="refreshCompetition();"><img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
+				<h4>Find Competition <span><a id="find-competition-refresh" href="#"><img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
 				<p>Click these links to find other businesses like yours</p>
 				{% if session['competition'] %}
 		        	<table id="competition-table"></table>
@@ -69,7 +69,7 @@
 		<!-- Follower and Competition Divs -->
 		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
 			<div class="card" id="followers">
-				<h4>Followers</h4>
+				<h4>Followers <span><a id="find-followers-refresh" href="#"><img id="refresh-followers" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
 				<p>Learn about your followers</p>
 
 				<!-- Followers table -->
@@ -155,7 +155,7 @@
 		        	<p class="text-danger">Twitter Required To Procceed</p>
 		        {% endif %}
 	        	<p><input class="btn btn-primary" type="submit" value="Go!"></p>
-	       		<p id="setup-form-message" class="text-danger"></p>
+	       		<p id="setup-form-message" class="text-primary"></p>
 	        </form>
 	      </div>
 	    </div>

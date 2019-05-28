@@ -52,18 +52,18 @@ def tips(userReturn):
 	try:
 		# Defining variables
 
-
+		print(userReturn)
 		# Twitter variables
 		twitterDescription = userReturn['twitter']['userData']['description']
 		twitterName = userReturn['twitter']['userData']['name']
 		twitterLocation = userReturn['twitter']['userData']['location']
 		twitterFollowing = userReturn['twitter']['userData']['friends_count']
 
+		websiteName = userReturn['website']['website-name']
+		websiteUrl = userReturn['website']['website-url']
 		# Trying to get website variables
 		try:
 			websiteLinks = userReturn['website']['links']
-			websiteName = userReturn['website']['website-name']
-			websiteUrl = userReturn['website']['website-url']
 			
 		except Exception as e:
 			print('Website tips not working/setup')
@@ -136,6 +136,9 @@ def tips(userReturn):
 		if twitterFollowing < 100:
 			twitterFollowingTips = "You are only following " + str(twitterFollowing) + " people. Try following more people in your niche."
 			tips.append(twitterFollowingTips)
+		if websiteName == '' and websiteUrl == '':
+			websiteNotExist = "Website not connected we recommend you connect it as soon as possible."
+			tips.append(websiteNotExist)
 
 		print(tips)
 		return tips
@@ -435,11 +438,13 @@ def postNiche():
 		# Getting data from firebase
 		user = session['user']
 		uid = user['localId']
+
 		location = database.child("users").child(uid).child("data").child("twitter").child("userData").child("location").get().val()
 		
 		# Getting competitiors on google
 		searchResults = googleSearch(nichePost, location, 1)
 		print(searchResults)
+
 		# Putting niche in database
 		database.child("users").child(uid).child("data").child("account").update({'niche' : nichePost })
 
@@ -448,7 +453,8 @@ def postNiche():
 		print('aaaaaa')
 
 		# Putting data in session
-		session['competitiors'] = searchResults
+		session['competition'] = searchResults
+
 		value = 'success'
 	except Exception as e:
 		print('niche post failed')
@@ -459,7 +465,7 @@ def postNiche():
 @api.route("/refresh-search", methods=['GET','POST'])
 def refreshSearch():
 	try:
-		
+		print('aaaaa')
 		# Getting firebase data
 		user = session['user']
 		uid = user['localId']
@@ -472,12 +478,96 @@ def refreshSearch():
 		randomInt = random.randint(1,7)
 		searchResults = googleSearch(niche, location, randomInt)
 
+		print(searchResults)
+
 		# Putting data back in firebase
 		database.child("users").child(uid).child("data").child("competition").set(searchResults)
-		
+
+		session['competition'] = searchResults
+
 		value = 'success'
 	except Exception as e:
 		print('Refresh search failed')
+		print(e)
+		value = 'failed'
+
+	return value
+
+@api.route("/refresh-followers", methods=['GET','POST'])
+def refreshFollowers():
+	print('aaaaa')
+	try:
+
+		currentFollowersShowingName = []
+		currentFollowersShowingLocation = []
+		followersLocatonList = []
+		followersNameList = []
+		print('aaaaa')
+
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+		# Getting number of followers
+		followers = database.child("users").child(uid).child("data").child("twitter").child("followers").child("users").get().val()
+
+		for currentItem in session['followersData'][0]:
+			currentFollowersShowingName.append(currentItem)
+
+		for currentItem in session['followersData'][1]:
+			currentFollowersShowingLocation.append(currentItem)
+
+		print()
+		# counter
+		x = 0
+		print('aaaaa')
+
+		# For loop getting location and name
+		for follow in followers:
+
+			# Checking if name is current
+			if follow['name'] in currentFollowersShowingName:
+				print('found')
+				continue
+			x += 1
+			followerLocation = follow['location']
+			print(followerLocation)
+			followersLocatonList.append(followerLocation)
+
+			followerName = follow['name']
+			print(followerName)
+
+			followersNameList.append(followerName)
+
+			if x > 9:
+				break
+
+		print("x")
+		print(x)
+		if x < 9:
+			print('aaaaa')
+			for currentItem in currentFollowersShowingName:
+				print(currentItem)
+				currentFollowerName = currentItem
+				followersNameList.append(currentFollowerName)
+
+			for currentItem in currentFollowersShowingLocation:
+				x += 1
+				currentFollowerLocation = currentItem
+				followersLocatonList.append(currentFollowerLocation)
+
+				if x > 9:
+					break
+		print(followersNameList)
+		print(followersLocatonList)
+
+		data = []
+		data.append(followersNameList)
+		data.append(followersLocatonList)
+		print(data)
+		session['followersData'] = data
+		value = 'success'
+	except Exception as e:
 		print(e)
 		value = 'failed'
 

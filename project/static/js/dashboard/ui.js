@@ -87,19 +87,20 @@ $(document).ready(function(){
       } 
     });
   });
-});
-function refreshCompetition() {
-    alert('aa')
+
+  // Find followers refresh
+  $('#find-followers-refresh').click(function() {
     $.ajax({
-    type: 'POST',
-    url : '/refresh-search',
-    success: function (value) {
-      if(value == "success"){
-        location.reload();
-      }
-    } 
+      type: 'POST',
+      url : '/refresh-followers',
+      success: function (value) {
+        if(value == "success"){
+          location.reload();
+        }
+      } 
+    });
   });
-}
+});
 // Removing tip
 function dismissTip(e){
   tipDiv = $(e).parent();
@@ -107,13 +108,13 @@ function dismissTip(e){
     // Fade out complete
     $(e).parent().remove();
   });
-  // numberOfTips = document.getElementsByClassName("tip-card").length;
-  // element = document.getElementById('sidebar-status');
-  // tipsNoneDifference = element.childNodes.length - numberOfTips
-  // console.log('tips dif: ' + tipsNoneDifference)
-  // console.log('element length: : ' + element.childNodes.length)
-  // console.log('numberOfTips: : ' + numberOfTips)
-  if(element.childNodes.length == 6){
+  numberOfTips = document.getElementsByClassName("tip-card").length;
+  element = document.getElementById('sidebar-status');
+  tipsNoneDifference = element.childNodes.length - numberOfTips
+  console.log('tips dif: ' + tipsNoneDifference)
+  console.log('element length: : ' + element.childNodes.length)
+  console.log('numberOfTips: : ' + numberOfTips)
+  if(numberOfTips == 1){
   // div = document.getElementById('sidebar-status');
     var noneDiv = document.createElement('p');
     var noneText = document.createTextNode('No Tips');

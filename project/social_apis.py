@@ -50,6 +50,8 @@ def websiteScrapping(website):
 	print('aaalll')
 	# Making Request
 	r = rq.get(str(website))
+	print('aaaaa\n\n\n\n')
+	print(website)
 
 	# Defining variable soup
 	soup = BeautifulSoup(r.text, 'html.parser')
