@@ -3,9 +3,22 @@ $(document).ready(function(){
 
   // Showing setup modal
   $('#setup-modal').modal('show');
-
   // Setup Form
   $('#setup-connect-form').on('submit', function(event){
+
+    // Getting and creating divs
+    var bodyDiv = document.getElementById('setup-body');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.setAttribute('id', 'loader-setup')
+
+    // Adding loader class
+    loaderDiv.classList.add('loader');
+
+    // Appending div
+    bodyDiv.appendChild(loaderDiv);
+
+    // Creating delay for submit
+    var delay = 2500;
     $.ajax({
       type : 'POST',
       url : '/setup-update',
@@ -14,11 +27,16 @@ $(document).ready(function(){
         website_url : $('#website-url-setup').val()
       },
       success: function (value) {
-        // var evalue = JSON.parse(value);
-        $('#setup-form-message').html(value)
-        if(value == "success"){
-          location.reload();
-        }
+        setTimeout(function() {
+          alert(value)
+          // When value is returned I am deleting div
+          loaderDiv.remove();
+
+          $('#setup-form-message').html(value)
+          if(value == "success"){
+            location.reload();
+          }
+        }, delay);
       }
     });
     event.preventDefault();
@@ -123,8 +141,3 @@ function dismissTip(e){
   } 
 
 }
-function tipsExist(){
-  element = document.getElementById('sidebar-status');
-
-}
-tipsExist();

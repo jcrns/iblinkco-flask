@@ -59,7 +59,7 @@ def updateSetupAndWebsite():
 
 	except Exception as e:
 		print("twiiter not connected")
-		value = "Twitter not connect"
+		value = "Twitter not connected"
 		return value
 	try:
 		# Defining variables equal to form input

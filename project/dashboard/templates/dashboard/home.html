@@ -33,7 +33,7 @@
 			{% endif %}
 		</div>
 		<!-- Summary -->
-		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="left-container">
 			<div class="card" id="summary">
 				<!-- Displaying user data -->
 				<h5>{{ session['email'] }}</h5>
@@ -41,7 +41,9 @@
 				<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h1>
 				<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
 				<!-- Followers History -->
-		        <canvas id="followers-history"></canvas>
+		        <div id="followers-history-graph">
+		        	<canvas id="followers-history"></canvas>
+		        </div>
 		        <p>
 		        	<small id="followers-avg"></small>
 		        	<small id="followers-min"></small>
@@ -49,12 +51,13 @@
 		        </p>
 		      	{% if session['niche'] %}
 		        	<p>Your company is a {{ session['niche'] }}</p>
+		        	<p style="text-align: right; text-decoration: none; font-size: 20px;"><a href="#" onclick="expandSummary()" style="color: #000;"><ion-icon name="expand"></ion-icon></a></p>
 		        {% else %}
 
 		        {% endif %}
 			</div>
 			<div class="card" id="competition">
-				<h4>Find Competition <span><a id="find-competition-refresh" href="#"><img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
+				<h4>Find Competition <span id="find-competition-refresh"><a href="#">Get More<img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
 				<p>Click these links to find other businesses like yours</p>
 				{% if session['competition'] %}
 		        	<table id="competition-table"></table>
@@ -63,13 +66,14 @@
 		        		<p>Your company is a <input id="niche-text" type="text" placeholder="Ex: Barbershop"><input id="niche-button" class="btn btn-primary" value="Submit" type="submit" ></p>
 		        	</form>
 		        {% endif %}
+		        <p style="text-align: right; text-decoration: none; font-size: 20px;"><a id="expand-competition" onclick="expandCompetition()" href="#" style="color: #000;"><ion-icon name="expand"></ion-icon></a></p>
 			</div>
 		</div>
 		
 		<!-- Follower and Competition Divs -->
-		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="right-container">
 			<div class="card" id="followers">
-				<h4>Followers <span><a id="find-followers-refresh" href="#"><img id="refresh-followers" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
+				<h4>Followers <span id="get-more-followers"><a id="find-followers-refresh" href="#">Get More<img id="refresh-followers" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
 				<p>Learn about your followers</p>
 
 				<!-- Followers table -->
@@ -136,7 +140,7 @@
 	      <div class="modal-header">
 	        <h5 class="modal-title" id="exampleModalLabel">Connect</h5>
 	      </div>
-	      <div class="modal-body">
+	      <div class="modal-body" id="setup-body">
 	      	<p><a href="{{ url_for('dashboard.twitterLogin') }}"><img class="social-logo" src="{{ url_for('static', filename = 'img/dashboard/twitter-logo.png') }}"></a>
 	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/facebook-logo.png') }}">
 	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/snapchat-logo.png') }}">
@@ -154,7 +158,7 @@
 		        {% else %}
 		        	<p class="text-danger">Twitter Required To Procceed</p>
 		        {% endif %}
-	        	<p><input class="btn btn-primary" type="submit" value="Go!"></p>
+	        	<p><input id="setup-submit" class="btn btn-secondary" required="true" type="submit" value="Go!"></p>
 	       		<p id="setup-form-message" class="text-primary"></p>
 	        </form>
 	      </div>
@@ -164,6 +168,14 @@
 	{% endif %}
 	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
 	<script type="text/javascript">
+		{% if session['userTwitterData'] %}
+			setupSubmit = document.getElementById('setup-submit')
+			if(setupSubmit != null){
+				setupSubmit.setAttribute('style', 'background-color: #0000EE')
+			}
+		{% else %}
+
+		{% endif %}
 		function followersData(){
 			// Follower data list
 			var followerNameList = [];
@@ -220,8 +232,7 @@
 			{% endif %}
 		}
 		followersData();
-		function followersGraph(){
-
+		function history(){
 			// Follower graph list
 			var dateList = [] ;
 			var followerNumberList = [];
@@ -237,7 +248,8 @@
 					follower = '{{ follower }}'
 					followerNumberList.push(follower)
 				{% endfor %}
-				
+
+				// Creating graph
 				new Chart(document.getElementById("followers-history"), {
 				  type: 'line',
 				  data: {
@@ -276,7 +288,7 @@
 			{% endif %}
 			
 		}
-		followersGraph();
+		history();
 		function competition(){
 
 			// Defining list variables
@@ -332,6 +344,65 @@
 			
 		}
 		competition();
+		
+		// Expand Competition 
+		function expandSummary(){
+
+			// Defining variables
+			var summaryDiv = $('#summary');
+			var competitionDiv = $('#competition');
+			var websiteDiv = $('#website');
+			var followersDiv = $('#followers');
+
+			var holderLeftDiv = $("#left-container");
+			var followersGraph = $('#followers-history')
+
+			if(competitionDiv.is(":hidden")){
+				holderLeftDiv.removeClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				competitionDiv.show();
+				websiteDiv.show();
+				followersDiv.show();
+			} else {
+				// Fade out function
+				$(competitionDiv).fadeOut( "normal");
+				$(websiteDiv).fadeOut( "normal");
+				$(followersDiv).fadeOut( "normal");
+
+				// Managing classes
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				holderLeftDiv.addClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+			}
+		}
+		function expandCompetition(){
+			
+			// Defining variables
+			var summaryDiv = $('#summary');
+			var competitionDiv = $('#competition');
+			var websiteDiv = $('#website');
+			var followersDiv = $('#followers');
+
+			var holderLeftDiv = $("#left-container");
+			var followersGraph = $('#followers-history')
+
+			if(summaryDiv.is(":hidden")){
+				holderLeftDiv.removeClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				summaryDiv.show();
+				websiteDiv.show();
+				followersDiv.show();
+			} else {
+				// Fade out function
+				$(summaryDiv).fadeOut( "normal");
+				$(websiteDiv).fadeOut( "normal");
+				$(followersDiv).fadeOut( "normal");
+
+				// Managing classes
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				holderLeftDiv.addClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+			}
+		}
+		
 // new Chart(document.getElementById("followers-history"), {
 //   type: 'line',
 //   data: {

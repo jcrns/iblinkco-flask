@@ -81,14 +81,21 @@ def tips(userReturn):
 		# Finding out static trend with for loop
 		twitterDaysStatic = 0
 		for i in itertools.count():
-			print(i)
-			if i == len(twitterFollowerNumberList):
-				break
 			if i == 0:
 				i += 1
+			print('aaaaaaa')
+			print(twitterFollowerNumberList[-i])
+			print(twitterFollowerNumberList[-i + 1])
+			print(i)
+			print(twitterFollowerNumberList)
+			if i == len(twitterFollowerNumberList):
+				break
 			if twitterFollowerNumberList[-i] == twitterFollowerNumberList[-i + 1]:
 				twitterDaysStatic += 1
-		print('daysStatic')
+				print(twitterDaysStatic)
+			else:
+				break
+		print('\n\n\n\n\n\n\n\n\n\n\n\n\ndaysStatic')
 		print(twitterDaysStatic)
 
 		# Trying to give other tips
