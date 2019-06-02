@@ -7,8 +7,6 @@ import os
 # Importing Views
 from project.homepage.views import homepage
 
-from project.websites.views import websites
-
 from project.users.views import users
 
 from project.dashboard.views import dashboard
@@ -29,8 +27,6 @@ app = Flask(__name__)
 
 # Registering Blueprints
 app.register_blueprint(homepage)
-
-app.register_blueprint(websites)
 
 app.register_blueprint(users)
 

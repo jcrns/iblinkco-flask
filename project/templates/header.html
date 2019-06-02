@@ -57,20 +57,6 @@
                     <li class="nav-item">
                     <a id="contactus-button" class="nav-link font-weight-bold" href="{{ url_for('homepage.home') }}#contactus">Contact Us</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Tools
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                          <a class="dropdown-item" href="#">Social Media Dashboard</a>
-                          <a class="dropdown-item" href="#">Another action</a>
-                          <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a id="websites-button" class="nav-link font-weight-bold"
-                            href="{{ url_for('websites.home') }}">Get A Websites</a>
-                    </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     {% if session['email'] %}
