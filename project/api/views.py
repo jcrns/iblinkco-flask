@@ -90,7 +90,7 @@ def tips(userReturn):
 			print(twitterFollowerNumberList)
 			if i == len(twitterFollowerNumberList):
 				break
-			if twitterFollowerNumberList[-i] == twitterFollowerNumberList[-i + 1]:
+			if twitterFollowerNumberList[-i] == twitterFollowerNumberList[-i - 1]:
 				twitterDaysStatic += 1
 				print(twitterDaysStatic)
 			else:
@@ -436,6 +436,7 @@ def disconnectWebsite():
 
 	return value
 
+# Posting niche
 @api.route("/post-niche", methods=['GET','POST'])
 def postNiche():
 	try:
@@ -468,6 +469,30 @@ def postNiche():
 		print(e)
 		value = 'failed'
 	return value
+
+# Disconnecting niche and competition
+@api.route("/disconnect-niche", methods=['GET','POST'])
+def disconnectNiche():
+	try:
+		print('disconnecting')
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+
+		# Disconnecting niche from database
+		database.child("users").child(uid).child("data").child("twitter").child("userData").child("account").child("niche").remove()
+
+		# Popping niche from session
+		session.pop('competition', None)
+
+		# Assigning message
+		value = 'success'
+	except Exception as e:
+		print(e)
+		value = 'failed'
+	return value
+
 
 @api.route("/refresh-search", methods=['GET','POST'])
 def refreshSearch():

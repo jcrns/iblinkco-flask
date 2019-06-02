@@ -28,7 +28,6 @@ $(document).ready(function(){
       },
       success: function (value) {
         setTimeout(function() {
-          alert(value)
           // When value is returned I am deleting div
           loaderDiv.remove();
 
@@ -62,6 +61,18 @@ $(document).ready(function(){
     });
     event.preventDefault();
   });
+    // Disconnecting website
+  $('#disconnect-website').click(function() {
+    $.ajax({
+      type: 'POST',
+      url : '/disconnect-website',
+      success: function (value) {
+        if(value == "success"){
+          location.reload();
+        }
+      } 
+    });
+  });
 
   // Submiting niche
   $('#niche-submit').on('submit', function(event){
@@ -80,11 +91,11 @@ $(document).ready(function(){
     event.preventDefault();
   });
 
-  // Disconnecting website
-  $('#disconnect-website').click(function() {
+  // Disconnecting niche
+  $('#disconnect-niche-competition').click(function() {
     $.ajax({
       type: 'POST',
-      url : '/disconnect-website',
+      url : '/disconnect-niche',
       success: function (value) {
         if(value == "success"){
           location.reload();

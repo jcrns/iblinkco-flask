@@ -28,6 +28,9 @@ database = databaseConnect['database']
 
 authe = databaseConnect['authe']
 
+# TWITTER OAUTH
+twitter = twitterConnect()
+
 @dashboard.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def home():
@@ -115,10 +118,6 @@ def updateSetupAndWebsite():
 
 
 	return value
-
-
-# TWITTER OAUTH
-twitter = twitterConnect()
 
 @twitter.tokengetter
 def get_twitter_token():
@@ -209,7 +208,29 @@ def twitterOauthorized():
 	if resp is None:
 		print('You denied the request to sign in.')
 	else:
-		# Creating List to hold data
+		# Putting response in session
+		session['twitter_oauth'] = resp
+
+		# Running twitter request function
+		twitterRequest = requestTwitter()
+	return redirect(url_for('dashboard.home'))
+
+@dashboard.route('/twitter-session-exist')
+def sessionExist():
+	print('session exist')
+	try:
+
+		# Running twitter request function
+		twitterRequest = requestTwitter()
+	except Exception as e:
+		print(e)
+		value = 'failed'
+		flash(f'Twitter Refresh Failed')
+		return redirect(url_for('dashboard.home'))
+	return redirect(url_for('dashboard.home'))
+# Requesting twitter function
+def requestTwitter():
+			# Creating List to hold data
 		NumberOfTweets = []
 		tweetText = []
 		favoritesNumber = []
@@ -223,9 +244,9 @@ def twitterOauthorized():
 		followingNameList = []
 		followingScreenNameList = []
 
+		resp = session['twitter_oauth']
 		screen_name = resp['screen_name']
 		print(screen_name)
-		session['twitter_oauth'] = resp
 
 		# Getting User Time Line
 		# timeline = twitter.request('statuses/home_timeline.json?count=200')
@@ -332,9 +353,11 @@ def twitterOauthorized():
 			print('aaa')
 			print('session')
 			print(session['user'])
-			user = session['user']
 			print('aaa')
 
+			# Getting user from session
+			user = session['user']
+			
 			# Assigning uid as a variable which will be used to go through branched in for loop
 			uid = user['localId']
 
@@ -371,6 +394,7 @@ def twitterOauthorized():
 			followersData = followerData(databaseData)
 			session['followersData'] = followersData
 			print('aaall')
+			value = 'success'
 
 			# Unrequired data for setup
 			try:
@@ -383,10 +407,23 @@ def twitterOauthorized():
 
 			print('aaaa')
 		except Exception as e:
+			value = 'failed'
 			print(e)
 			flash(f'Twitter Login Failed')
 			return redirect(url_for('dashboard.home'))
-			
-	return redirect(url_for('dashboard.home'))
-
+		return value
+# Test 
+@dashboard.route('/test', methods=['GET', 'POST'])
+def testRequest():
+	print('aaaa\n\n\n\n\n\n\n\n\n\n')
+	try:
+		resp = session['twitter_oauth']
+		getFollowers = twitter.request('followers/list.json?count=200')
+		followers = getFollowers.data
+		print(followers)
+		value = 'success'
+	except Exception as e:
+		print(e)
+		value = 'failed'
+	return value
 	# Twitter Search Function Terms

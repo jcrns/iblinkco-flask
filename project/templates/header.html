@@ -20,7 +20,7 @@
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/ionicons@4.5.5/dist/ionicons.js"></script>
-        
+
         <!-- Graph JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
 
@@ -102,6 +102,28 @@
         {% endwith %}
         <!-- All included content -->
         {% block content %} {% endblock %}
+        <script type="text/javascript">
+            
+            // Scoll Animation Using Jquery
+            $("#about-button").click(function() {
+              $([document.documentElement, document.body]).animate({
+                scrollTop: $("#about").offset().top
+              }, 1000);
+            });
+
+            $("#pricing-button").click(function() {
+              $([document.documentElement, document.body]).animate({
+                scrollTop: $("#pricing").offset().top
+              }, 1000);
+            });
+
+            $("#contactus-button").click(function() {
+              $([document.documentElement, document.body]).animate({
+                scrollTop: $("#contactus").offset().top
+              }, 1000);
+            });
+  
+        </script>
     </body>
     <!-- footer for page -->
     <footer id="footer">

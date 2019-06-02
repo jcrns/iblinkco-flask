@@ -163,6 +163,94 @@ html,body
   margin-left: 1%;
 }
 
+/*Info hover text*/
+#status-description-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: #D3D3D3;
+  color: #000;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  font-size: 14px;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+#status-text:hover #status-description-text {
+  visibility: visible;
+}
+
+#competition-text img {
+  width: 15px;
+  height: 15px;
+  margin-left: 1%;
+}
+#competition-description-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: #D3D3D3;
+  color: #000;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  font-size: 14px;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+#competition-text:hover #competition-description-text {
+  visibility: visible;
+}
+
+#followers-text img {
+  width: 15px;
+  height: 15px;
+  margin-left: 1%;
+}
+#followers-description-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: #D3D3D3;
+  color: #000;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  font-size: 14px;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+#followers-text:hover #followers-description-text {
+  visibility: visible;
+}
+
+#website-text img {
+  width: 15px;
+  height: 15px;
+  margin-left: 1%;
+}
+#website-description-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: #D3D3D3;
+  color: #000;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  font-size: 14px;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+#website-text:hover #website-description-text {
+  visibility: visible;
+}
+
 /*Loader*/
 .loader {
   border: 16px solid #f3f3f3;

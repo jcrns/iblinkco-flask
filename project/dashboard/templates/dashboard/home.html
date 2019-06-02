@@ -18,7 +18,9 @@
 		<!-- Sidebar -->
 		<div class="col-md-2 col-lg-2 h-auto d-inline-block bg-light fixed-left" id="sidebar-status">
 			<ul class="list-unstyled components" id="sidebar-list">
-				<h5>Status<span><a href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"></a></span></h5> 
+				<h5>Status
+					<span><a id="status-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="status-description-text">This status bar is where tips about your social media will be given</span></a></span>
+				</h5> 
 			</ul>
 			{% if session['tips'] %}
 				{% for tip in session['tips'] %}
@@ -38,17 +40,20 @@
 				<!-- Displaying user data -->
 				<h5>{{ session['email'] }}</h5>
 				<h6>{{ session['userTwitterData']['location'] }}</h6>
-				<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a href="{{ url_for('dashboard.twitterLogin') }}"><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h1>
+				<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h1>
 				<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
 				<!-- Followers History -->
 		        <div id="followers-history-graph">
 		        	<canvas id="followers-history"></canvas>
 		        </div>
-		        <p>
-		        	<small id="followers-avg"></small>
-		        	<small id="followers-min"></small>
-		        	<small id=followers-max></small>
-		        </p>
+		        <div id="graph-data">
+					<p>
+			        	<small id="followers-avg"></small>
+			        	<small class="text-danger" id="followers-min"></small>
+			        	<small class="text-success" id=followers-max></small>
+			        </p>
+		        	
+		        </div>
 		      	{% if session['niche'] %}
 		        	<p>Your company is a {{ session['niche'] }}</p>
 		        	<p style="text-align: right; text-decoration: none; font-size: 20px;"><a href="#" onclick="expandSummary()" style="color: #000;"><ion-icon name="expand"></ion-icon></a></p>
@@ -57,30 +62,43 @@
 		        {% endif %}
 			</div>
 			<div class="card" id="competition">
-				<h4>Find Competition <span id="find-competition-refresh"><a href="#">Get More<img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
+				<h4>Find Competition
+					<span><a id="competition-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="competition-description-text">These are searches that relate to your business. Click show more to view more searches.</span></a></span>
+				</h4>
+				<p id="find-competition-refresh">
+					<a href="#">Show More<img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a>
+				</p>
 				<p>Click these links to find other businesses like yours</p>
 				{% if session['competition'] %}
 		        	<table id="competition-table"></table>
+		        	<button class="btn btn-secondary" id="disconnect-niche-competition">Remove Niche & Competition</button>
+		        	<p style="text-align: right; text-decoration: none; font-size: 20px;"><a id="expand-competition" onclick="expandCompetition()" href="#" style="color: #000;"><ion-icon name="expand"></ion-icon></a></p>
 		        {% else %}
 		        	<form method="POST" id="niche-submit">
 		        		<p>Your company is a <input id="niche-text" type="text" placeholder="Ex: Barbershop"><input id="niche-button" class="btn btn-primary" value="Submit" type="submit" ></p>
 		        	</form>
 		        {% endif %}
-		        <p style="text-align: right; text-decoration: none; font-size: 20px;"><a id="expand-competition" onclick="expandCompetition()" href="#" style="color: #000;"><ion-icon name="expand"></ion-icon></a></p>
 			</div>
 		</div>
 		
-		<!-- Follower and Competition Divs -->
+		<!-- Followers and Website Divs -->
 		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="right-container">
 			<div class="card" id="followers">
-				<h4>Followers <span id="get-more-followers"><a id="find-followers-refresh" href="#">Get More<img id="refresh-followers" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h4>
+				<h4>Followers
+					<span><a id="followers-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="followers-description-text">These are Nine of the people who follow you and their location. Click show more to view more followers.</span></a></span>
+				</h4>
+				<p id="get-more-followers">
+					<a id="find-followers-refresh" href="#">Show More<img id="refresh-followers" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a>
+				</p>
 				<p>Learn about your followers</p>
 
 				<!-- Followers table -->
 				<table id="followers-data-table" class="table"></table>
 			</div>
 			<div class="card" id="website">
-				<h4>Website</h4>
+				<h4>Website
+					<span><a id="website-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="website-description-text">These are possible links of your website found on your homepage.</span></a></span>
+				</h4>
 				{% if session['websiteData']['website-name'] != '' %}
 					<p><strong>{{ session['websiteData']['header-text'] }}</strong></p>
 	        		<p>{{ session['websiteData']['website-name'] }}</p>
@@ -168,6 +186,7 @@
 	{% endif %}
 	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
 	<script type="text/javascript">
+		// Changing setup submit button color
 		{% if session['userTwitterData'] %}
 			setupSubmit = document.getElementById('setup-submit')
 			if(setupSubmit != null){
@@ -175,6 +194,17 @@
 			}
 		{% else %}
 
+		{% endif %}
+
+		// Refresh button
+		{% if session['twitter_oauth'] %}
+			refresh = document.getElementById('refresh-twitter');
+			refreshAnchor = refresh.parentElement;
+			refreshAnchor.setAttribute('href', '{{ url_for("dashboard.sessionExist") }}');
+		{% else %}
+			refresh = document.getElementById('refresh-twitter');
+			refreshAnchor = refresh.parentElement;
+			refreshAnchor.setAttribute('href', '{{ url_for("dashboard.twitterLogin") }}');
 		{% endif %}
 		function followersData(){
 			// Follower data list
@@ -276,15 +306,33 @@
 					total += parseInt(followerNumberList[i]);
 				}
 				var followerCountAvg = total / followerNumberList.length;
+				var followerCountAvgRounded = Math.max( Math.round(followerCountAvg * 10) / 10, 2.8 ).toFixed(2);
 				
 				var followerCountMin = Math.min.apply(null, followerNumberList);
 
 				var followerCountMax = Math.max.apply(null, followerNumberList);
 
 				// Entering data to html
-				$('#followers-avg').html('Average: ' + followerCountAvg)
-				$('#followers-min').html('Min: ' + followerCountMin)
-				$('#followers-max').html('Max: ' + followerCountMax)
+				$('#followers-avg').html('Average: ' + followerCountAvgRounded);
+				$('#followers-min').html('Min: ' + followerCountMin);
+				$('#followers-max').html('Max: ' + followerCountMax);
+
+				// Showing that number of followers is at all time high
+				if(followerNumberList[followerNumberList.length - 1] == followerCountMax){
+					var graphData = document.getElementById('graph-data');
+					var message = document.createElement('p');
+					message.setAttribute('class', 'text-secondary');
+					message.innerHTML = 'Your amount of followers is at an all time high';
+					graphData.appendChild(message);
+				} 
+				// Just in case followers is at all time low
+				else if (followerNumberList[followerNumberList.length - 1] == followerCountMin){
+					var graphData = document.getElementById('graph-data');
+					var message = document.createElement('p');
+					message.setAttribute('class', 'text-secondary');
+					message.innerHTML = 'Your amount of followers is at an all time low';
+					graphData.appendChild(message);
+				}
 			{% endif %}
 			
 		}
@@ -358,12 +406,15 @@
 			var followersGraph = $('#followers-history')
 
 			if(competitionDiv.is(":hidden")){
+				$("html, body").animate({ scrollTop: 0 }, "slow");
 				holderLeftDiv.removeClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
 				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
 				competitionDiv.show();
 				websiteDiv.show();
 				followersDiv.show();
 			} else {
+				$("html, body").animate({ scrollTop: 0 }, "slow");
+				
 				// Fade out function
 				$(competitionDiv).fadeOut( "normal");
 				$(websiteDiv).fadeOut( "normal");
@@ -375,7 +426,7 @@
 			}
 		}
 		function expandCompetition(){
-			
+
 			// Defining variables
 			var summaryDiv = $('#summary');
 			var competitionDiv = $('#competition');
@@ -391,7 +442,10 @@
 				summaryDiv.show();
 				websiteDiv.show();
 				followersDiv.show();
+				$(competitionDiv).scrollTop(0);
 			} else {
+				$('body').scrollTop(0);
+				
 				// Fade out function
 				$(summaryDiv).fadeOut( "normal");
 				$(websiteDiv).fadeOut( "normal");
@@ -402,26 +456,6 @@
 				holderLeftDiv.addClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
 			}
 		}
-		
-// new Chart(document.getElementById("followers-history"), {
-//   type: 'line',
-//   data: {
-//     labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
-//     datasets: [{ 
-//         data: [86,114,106,106,107,111,133,221,783,2478],
-//         label: "Africa",
-//         borderColor: "#3e95cd",
-//         fill: false
-//       }
-//     ]
-//   },
-//   options: {
-//     title: {
-//       display: true,
-//       text: 'World population per region (in millions)'
-//     }
-//   }
-// });
 
 	</script>
 {% endblock %}
