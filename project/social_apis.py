@@ -1,5 +1,7 @@
 import pyrebase, json, requests
 from flask_oauthlib.client import OAuth
+import requests as rq
+from bs4 import BeautifulSoup
 
 def firebaseConnect():
 	# Configuring connection to database
@@ -30,27 +32,6 @@ def firebaseConnect():
 
 	return returnData
 
-def googleConnect(userInput):
-	VALUE = dict()
-	url = "https://www.googleapis.com/customsearch/v1"
-	parameters = {
-		"q": userInput,
-		"cx":'001120039411021127475:a4iq_yrptao',
-		"key":'AIzaSyCoVGR41c_O-q7Xz21FduFHtmm37azYTjQ',
-		"start": 2
-	}
-	page = requests.request("GET", url, params=parameters)
-
-	allItems = []
-	results = json.loads(page.text)
-	# print(results['items'])
-
-	for resultItem in results['items']:
-		allItems.append(resultItem['link'])
-		VALUE['allItems'] = allItems
-	
-	return VALUE
-
 def twitterConnect():
 	oauth = OAuth()
 	twitter = oauth.remote_app(
@@ -64,3 +45,64 @@ def twitterConnect():
 		
 	)
 	return twitter
+
+def websiteScrapping(website):
+	print('aaalll')
+	# Making Request
+	r = rq.get(str(website))
+	print('aaaaa\n\n\n\n')
+	print(website)
+
+	# Defining variable soup
+	soup = BeautifulSoup(r.text, 'html.parser')
+
+	# Getting header tags
+	headerTags = soup.find('title').text
+
+	# Define return list
+	returnList = []
+	linkList = []
+	# Getting hrefs
+
+	hrefs = soup.find_all('a')
+	for href in hrefs:
+		link = href['href']	
+		if link == '/':
+			continue
+		if '/' in link:
+			fullUrl = str(website) + str(link)
+			linkList.append(fullUrl)
+
+
+	returnList.append(headerTags)
+	returnList.append(linkList)
+
+	return returnList
+
+def googleSearch(niche, location, start):
+	title_list = []
+	link_list = []
+
+	# Getting user data to search
+	url = "https://www.googleapis.com/customsearch/v1"
+	userInput = str(niche) + " company in " + str(location)
+
+	# Connect google
+	parameters = {
+		"q": userInput,
+		"cx": '001120039411021127475:a4iq_yrptao',
+		"key": 'AIzaSyCoVGR41c_O-q7Xz21FduFHtmm37azYTjQ',
+		"start": start,
+		# "siteSearch": "https://instagram.com"
+	}
+	page = requests.request("GET", url, params=parameters)
+	results = json.loads(page.text)
+	
+	# Getting title and link through for loop
+	for item in results['items']:
+		link_list.append(item['link'])
+		title_list.append(item['title'])
+
+	returnedData = [title_list, link_list]
+	return returnedData
+

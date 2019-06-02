@@ -1,8 +1,461 @@
 <!-- Jinja file including all homepage content -->
 {% extends "header.html" %}
-
-
 {% block content %}
-  {% include "dashboard/nav.html" %}
+	<link href="{{ url_for('static', filename = 'css/dashboard/home.css') }}" rel="stylesheet">
+	{% if session['setup_complete'] == True %}
+<!-- 	<div id="header-nav">
+		<ul class="list-unstyled components">
+			<li>Home</li>
+			<li>Competition</li>
+			<li>Analytics</li>
+		</ul>
+	</div> -->
+	<div id="header-bar" class="bg-dark">
+		<p><span id="header-bar-name"><b>{{ session['userTwitterData']['name'] }}</b></span><span id="header-bar-description">    {{ session['userTwitterData']['description'] }}</span></p>
+	</div>
+	<div class="row" id="home-row">
 
+		<!-- Sidebar -->
+		<div class="col-md-2 col-lg-2 h-auto d-inline-block bg-light fixed-left" id="sidebar-status">
+			<ul class="list-unstyled components" id="sidebar-list">
+				<h5>Status
+					<span><a id="status-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="status-description-text">This status bar is where tips about your social media will be given</span></a></span>
+				</h5> 
+			</ul>
+			{% if session['tips'] %}
+				{% for tip in session['tips'] %}
+					<div class="card tip-card">
+						<button type="button" class="close dismiss-tip" data-dismiss="modal" aria-label="Close" onclick="dismissTip(this)">
+							<span aria-hidden="true">&times;</span>
+		            	</button>
+						<h5>Tip</h5>
+						<p>{{ tip }}</p>
+					</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+		<!-- Summary -->
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="left-container">
+			<div class="card" id="summary">
+				<!-- Displaying user data -->
+				<h5>{{ session['email'] }}</h5>
+				<h6>{{ session['userTwitterData']['location'] }}</h6>
+				<h1>Total Followers: {{ session['userTwitterData']['followers_count'] }}<span><a><img id="refresh-twitter" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a></span></h1>
+				<h5>You're Following: {{ session['userTwitterData']['friends_count'] }}</h5>
+				<!-- Followers History -->
+		        <div id="followers-history-graph">
+		        	<canvas id="followers-history"></canvas>
+		        </div>
+		        <div id="graph-data">
+					<p>
+			        	<small id="followers-avg"></small>
+			        	<small class="text-danger" id="followers-min"></small>
+			        	<small class="text-success" id=followers-max></small>
+			        </p>
+		        	
+		        </div>
+		      	{% if session['niche'] %}
+		        	<p>Your company is a {{ session['niche'] }}</p>
+		        	<p style="text-align: right; text-decoration: none; font-size: 20px;"><a href="#" onclick="expandSummary()" style="color: #000;"><ion-icon name="expand"></ion-icon></a></p>
+		        {% else %}
+
+		        {% endif %}
+			</div>
+			<div class="card" id="competition">
+				<h4>Find Competition
+					<span><a id="competition-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="competition-description-text">These are searches that relate to your business. Click show more to view more searches.</span></a></span>
+				</h4>
+				<p id="find-competition-refresh">
+					<a href="#">Show More<img id="refresh-website" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a>
+				</p>
+				<p>Click these links to find other businesses like yours</p>
+				{% if session['competition'] %}
+		        	<table id="competition-table"></table>
+		        	<button class="btn btn-secondary" id="disconnect-niche-competition">Remove Niche & Competition</button>
+		        	<p style="text-align: right; text-decoration: none; font-size: 20px;"><a id="expand-competition" onclick="expandCompetition()" href="#" style="color: #000;"><ion-icon name="expand"></ion-icon></a></p>
+		        {% else %}
+		        	<form method="POST" id="niche-submit">
+		        		<p>Your company is a <input id="niche-text" type="text" placeholder="Ex: Barbershop"><input id="niche-button" class="btn btn-primary" value="Submit" type="submit" ></p>
+		        	</form>
+		        {% endif %}
+			</div>
+		</div>
+		
+		<!-- Followers and Website Divs -->
+		<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="right-container">
+			<div class="card" id="followers">
+				<h4>Followers
+					<span><a id="followers-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="followers-description-text">These are Nine of the people who follow you and their location. Click show more to view more followers.</span></a></span>
+				</h4>
+				<p id="get-more-followers">
+					<a id="find-followers-refresh" href="#">Show More<img id="refresh-followers" src="{{ url_for('static', filename = 'img/dashboard/refresh.png') }}"></a>
+				</p>
+				<p>Learn about your followers</p>
+
+				<!-- Followers table -->
+				<table id="followers-data-table" class="table"></table>
+			</div>
+			<div class="card" id="website">
+				<h4>Website
+					<span><a id="website-text" href="#"><img src="{{ url_for('static', filename = 'img/dashboard/info.png') }}"><span id="website-description-text">These are possible links of your website found on your homepage.</span></a></span>
+				</h4>
+				{% if session['websiteData']['website-name'] != '' %}
+					<p><strong>{{ session['websiteData']['header-text'] }}</strong></p>
+	        		<p>{{ session['websiteData']['website-name'] }}</p>
+	       			<h6>Your website urls (found on requested page)</h6>
+	        		{% for link in session['websiteData']['links'] %}
+	        			<p>{{ link }}</p>
+	        		{% endfor %}
+	        	{% else %}
+	        		<button class="btn btn-light" data-toggle="modal" data-target="#connect-website">Connect Your Website</button>
+	        	{% endif %}
+	        	{% if session['websiteData']['website-name'] != '' %}
+	        		<button class="btn btn-secondary" id="disconnect-website">Disconnect</button>
+	        	{% endif %}
+			</div>
+		</div>
+	</div>
+	    <!-- Connect Website  -->
+    <div class="modal fade" id="connect-website" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Connect Your Website</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="POST" id="connect-website-form">
+
+            	<!-- Website Name -->
+            	<p>
+            		<input type="text" id="website-name" name="website-name" placeholder="Website Name">
+            		<br>
+            		<small>Ex: MyWebsite</small>
+
+            	</p>
+
+            	<!-- Url Input -->
+            	<p>
+            		<input type="text" id="website-url" name="website-url" placeholder="Website URL">
+            		<br>
+            		<small>Ex: https://mywebsite.com or https://instagram/mywebsite </small>
+            	</p>
+
+            	<p><input class="btn btn-primary"type="submit" name="website-url" value="Connect!"></p>
+            	<p id="connect-website-form-message" class="text-danger"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+	{% else %}
+	  <!-- Setup Modal -->
+	<div class="modal" id="setup-modal" tabindex="-1" role="dialog" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLabel">Connect</h5>
+	      </div>
+	      <div class="modal-body" id="setup-body">
+	      	<p><a href="{{ url_for('dashboard.twitterLogin') }}"><img class="social-logo" src="{{ url_for('static', filename = 'img/dashboard/twitter-logo.png') }}"></a>
+	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/facebook-logo.png') }}">
+	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/snapchat-logo.png') }}">
+	      		<img class="unavalable-logo social-logo" src="{{ url_for('static', filename = 'img/dashboard/instagram-logo.png') }}"></p>
+
+	        <h4>Add Your Website! (Optional)</h4>
+	        <form method="POST" id="setup-connect-form">
+	        	<input id="website-name-setup" placeholder="Website Name" type="text" name="website-name-setup">
+	       		<input id="website-url-setup" placeholder="Website URL"type="text" name="website-url-setup">
+	       		<small>Website can be https://mywebsite.com or https://instagram/mywebsite </small>
+	       		<br>
+	       		<br>
+		        {% if session['userTwitterData'] %}
+		        	<h4>{{ session['userTwitterData']['name'] }}</h4>
+		        {% else %}
+		        	<p class="text-danger">Twitter Required To Procceed</p>
+		        {% endif %}
+	        	<p><input id="setup-submit" class="btn btn-secondary" required="true" type="submit" value="Go!"></p>
+	       		<p id="setup-form-message" class="text-primary"></p>
+	        </form>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	{% endif %}
+	<script src="{{ url_for('static', filename='js/dashboard/ui.js') }}"></script>
+	<script type="text/javascript">
+		// Changing setup submit button color
+		{% if session['userTwitterData'] %}
+			setupSubmit = document.getElementById('setup-submit')
+			if(setupSubmit != null){
+				setupSubmit.setAttribute('style', 'background-color: #0000EE')
+			}
+		{% else %}
+
+		{% endif %}
+
+		// Refresh button
+		{% if session['twitter_oauth'] %}
+			refresh = document.getElementById('refresh-twitter');
+			refreshAnchor = refresh.parentElement;
+			refreshAnchor.setAttribute('href', '{{ url_for("dashboard.sessionExist") }}');
+		{% else %}
+			refresh = document.getElementById('refresh-twitter');
+			refreshAnchor = refresh.parentElement;
+			refreshAnchor.setAttribute('href', '{{ url_for("dashboard.twitterLogin") }}');
+		{% endif %}
+		function followersData(){
+			// Follower data list
+			var followerNameList = [];
+			var followerLocationList = [];
+
+			// Getting data from session
+			{% if session['followersData'] %}
+				{% for followerName in session['followersData'][0] %}
+					followerName = '{{ followerName }}'
+					followerNameList.push(followerName)
+				{% endfor %}
+
+				{% for followerLocation in session['followersData'][1] %}
+					followerLocation = '{{ followerLocation }}'
+					followerLocationList.push(followerLocation)
+				{% endfor %}
+				
+				var opperationTable = document.getElementById('followers-data-table'); 
+
+				var titleRow = document.createElement('tr');
+	          	titleRow.setAttribute('class', "bg-info");
+
+
+				var titleName = document.createElement('td');
+				titleName.innerHTML = "<span style='color: #fff;'>Name</span>";
+
+				var titleLocation = document.createElement('td');
+				titleLocation.innerHTML = "<span style='color: #fff;'>Location</span>";
+
+				titleRow.append(titleName)
+				titleRow.append(titleLocation)
+				opperationTable.appendChild(titleRow)
+
+				for(var i = 0; i < followerNameList.length; i++){
+
+					// Creating Elements
+	          		var itemRow = document.createElement('tr');
+	          		var itemDataRowName = document.createElement('td');
+	          		var itemDataRowLocation = document.createElement('td');
+
+	          		// Adding content
+	          		if (followerLocationList[i] == '') {
+	          			itemDataRowLocation.innerHTML = "No Location";
+	          		} else{
+	          			itemDataRowLocation.innerHTML = followerLocationList[i];
+	          		}
+	          		itemDataRowName.innerHTML = followerNameList[i];
+
+	          		// Appending content
+	          		itemRow.appendChild(itemDataRowName);
+	          		itemRow.appendChild(itemDataRowLocation);
+	          		opperationTable.appendChild(itemRow);
+				}
+			{% endif %}
+		}
+		followersData();
+		function history(){
+			// Follower graph list
+			var dateList = [] ;
+			var followerNumberList = [];
+
+			{% if session['history'] %}
+				// Getting data from session
+				{% for follower in session['history'][0] %}
+					follower = '{{ follower }}'
+					dateList.push(follower)
+				{% endfor %}
+
+				{% for follower in session['history'][1] %}
+					follower = '{{ follower }}'
+					followerNumberList.push(follower)
+				{% endfor %}
+
+				// Creating graph
+				new Chart(document.getElementById("followers-history"), {
+				  type: 'line',
+				  data: {
+				    labels: dateList,
+				    datasets: [{ 
+				        data: followerNumberList,
+				        label: "Twitter",
+				        borderColor: "#28aae1",
+				        fill: false
+				      }
+				    ]
+				  },
+				  options: {
+				    title: {
+				      display: true,
+				      text: 'Your Trend of Followers'
+				    }
+				  }
+				});
+
+				// Analyzing data
+				var total = 0;
+				for(var i = 0; i < followerNumberList.length; i++){
+					total += parseInt(followerNumberList[i]);
+				}
+				var followerCountAvg = total / followerNumberList.length;
+				var followerCountAvgRounded = Math.max( Math.round(followerCountAvg * 10) / 10, 2.8 ).toFixed(2);
+				
+				var followerCountMin = Math.min.apply(null, followerNumberList);
+
+				var followerCountMax = Math.max.apply(null, followerNumberList);
+
+				// Entering data to html
+				$('#followers-avg').html('Average: ' + followerCountAvgRounded);
+				$('#followers-min').html('Min: ' + followerCountMin);
+				$('#followers-max').html('Max: ' + followerCountMax);
+
+				// Showing that number of followers is at all time high
+				if(followerNumberList[followerNumberList.length - 1] == followerCountMax){
+					var graphData = document.getElementById('graph-data');
+					var message = document.createElement('p');
+					message.setAttribute('class', 'text-secondary');
+					message.innerHTML = 'Your amount of followers is at an all time high';
+					graphData.appendChild(message);
+				} 
+				// Just in case followers is at all time low
+				else if (followerNumberList[followerNumberList.length - 1] == followerCountMin){
+					var graphData = document.getElementById('graph-data');
+					var message = document.createElement('p');
+					message.setAttribute('class', 'text-secondary');
+					message.innerHTML = 'Your amount of followers is at an all time low';
+					graphData.appendChild(message);
+				}
+			{% endif %}
+			
+		}
+		history();
+		function competition(){
+
+			// Defining list variables
+			var searchTitleList = [];
+			var searchUrlList = [];
+
+			{% if session['competition'] %}
+				// Getting data from session
+				{% for title in session['competition'][0] %}
+					title = '{{ title }}'
+					searchTitleList.push(title)
+				{% endfor %}
+
+				{% for url in session['competition'][1] %}
+					url = '{{ url }}'
+					searchUrlList.push(url)
+				{% endfor %}
+
+				// Putting data in table
+				var opperationTable = document.getElementById('competition-table'); 
+
+				var titleRow = document.createElement('tr');
+
+
+				var titleName = document.createElement('td');
+				titleName.innerHTML = "<b>Title</b>";
+
+				var titleUrl = document.createElement('td');
+				titleUrl.innerHTML = "<b>Url</b>";
+
+				titleRow.append(titleName)
+				titleRow.append(titleUrl)
+				opperationTable.appendChild(titleRow)
+
+				for(var i = 0; i < searchTitleList.length; i++){
+
+					// Creating Elements
+	          		var itemRow = document.createElement('tr');
+	          		var itemDataRowName = document.createElement('td');
+	          		var itemDataRowUrl = document.createElement('td');
+
+	          		// Adding content
+	          		itemDataRowUrl.innerHTML = "<a href='" + searchUrlList[i] + "'' target='_blank'> " + searchUrlList[i] + "</a>";
+	          		
+	          		itemDataRowName.innerHTML = searchTitleList[i];
+
+	          		// Appending content
+	          		itemRow.appendChild(itemDataRowName);
+	          		itemRow.appendChild(itemDataRowUrl);
+	          		opperationTable.appendChild(itemRow);
+				}
+			{% endif %}
+			
+		}
+		competition();
+		
+		// Expand Competition 
+		function expandSummary(){
+
+			// Defining variables
+			var summaryDiv = $('#summary');
+			var competitionDiv = $('#competition');
+			var websiteDiv = $('#website');
+			var followersDiv = $('#followers');
+
+			var holderLeftDiv = $("#left-container");
+			var followersGraph = $('#followers-history')
+
+			if(competitionDiv.is(":hidden")){
+				$("html, body").animate({ scrollTop: 0 }, "slow");
+				holderLeftDiv.removeClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				competitionDiv.show();
+				websiteDiv.show();
+				followersDiv.show();
+			} else {
+				$("html, body").animate({ scrollTop: 0 }, "slow");
+				
+				// Fade out function
+				$(competitionDiv).fadeOut( "normal");
+				$(websiteDiv).fadeOut( "normal");
+				$(followersDiv).fadeOut( "normal");
+
+				// Managing classes
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				holderLeftDiv.addClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+			}
+		}
+		function expandCompetition(){
+
+			// Defining variables
+			var summaryDiv = $('#summary');
+			var competitionDiv = $('#competition');
+			var websiteDiv = $('#website');
+			var followersDiv = $('#followers');
+
+			var holderLeftDiv = $("#left-container");
+			var followersGraph = $('#followers-history')
+
+			if(summaryDiv.is(":hidden")){
+				holderLeftDiv.removeClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				summaryDiv.show();
+				websiteDiv.show();
+				followersDiv.show();
+				$(competitionDiv).scrollTop(0);
+			} else {
+				$('body').scrollTop(0);
+				
+				// Fade out function
+				$(summaryDiv).fadeOut( "normal");
+				$(websiteDiv).fadeOut( "normal");
+				$(followersDiv).fadeOut( "normal");
+
+				// Managing classes
+				holderLeftDiv.toggleClass('col-xs-12 col-sm-12 col-md-5 col-lg-5')
+				holderLeftDiv.addClass("col-xs-12 col-sm-12 col-md-10 col-lg-10");
+			}
+		}
+
+	</script>
 {% endblock %}

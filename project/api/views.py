@@ -1,8 +1,14 @@
-from flask import g, Blueprint, jsonify, request, make_response, session, url_for, redirect
+# Importing all needed Flask classes
+from flask import Flask, session, redirect, Blueprint, request, jsonify, g, url_for, make_response
 
-from project.social_apis import *
+# Firebase connection
+from project.social_apis import firebaseConnect, websiteScrapping, googleSearch
 
-from time import sleep
+# Tools for for loops
+import itertools
+
+# Importing random
+import random
 
 api = Blueprint('api', __name__, template_folder='templates')
 
@@ -13,6 +19,200 @@ database = databaseConnect['database']
 
 authe = databaseConnect['authe']
 
+# Website
+def websites(userReturn):
+	websiteData = dict()
+	try:
+		# Saving required variables
+		websiteName = userReturn['website']['website-name']
+		websiteUrl = userReturn['website']['website-url']
+
+		websiteData['website-name'] = websiteName
+		websiteData['website-url'] = websiteUrl
+		
+		# Trying other variables
+		try:
+			headerText = userReturn['website']['header-text']
+			links = userReturn['website']['links']
+			websiteData['header-text'] = headerText
+			websiteData['links'] = links
+		except Exception as e:
+			print(e)
+		print('\n\n\n\n\n\n\n\n\n\n\n\n')
+		print(websiteData)
+		return websiteData
+	except Exception as e:
+		 print('Getting Website failed')
+		 print(e)
+
+# Tips
+def tips(userReturn):
+	tips = []
+	print('aaaa')
+	try:
+		# Defining variables
+
+		print(userReturn)
+		# Twitter variables
+		twitterDescription = userReturn['twitter']['userData']['description']
+		twitterName = userReturn['twitter']['userData']['name']
+		twitterLocation = userReturn['twitter']['userData']['location']
+		twitterFollowing = userReturn['twitter']['userData']['friends_count']
+
+		websiteName = userReturn['website']['website-name']
+		websiteUrl = userReturn['website']['website-url']
+		# Trying to get website variables
+		try:
+			websiteLinks = userReturn['website']['links']
+			
+		except Exception as e:
+			print('Website tips not working/setup')
+			print(e)
+
+		twitterDescriptionLen = len(twitterDescription)
+
+		twitterFollowers = history(userReturn)
+
+		print('\n\n\n\n\n\n\n\n\n\n\n')
+		print(twitterFollowers)
+		twitterFollowerNumberList = twitterFollowers[1]
+		print(twitterFollowerNumberList)
+
+		# Finding out static trend with for loop
+		twitterDaysStatic = 0
+		for i in itertools.count():
+			if i == 0:
+				i += 1
+			print('aaaaaaa')
+			print(twitterFollowerNumberList[-i])
+			print(twitterFollowerNumberList[-i + 1])
+			print(i)
+			print(twitterFollowerNumberList)
+			if i == len(twitterFollowerNumberList):
+				break
+			if twitterFollowerNumberList[-i] == twitterFollowerNumberList[-i - 1]:
+				twitterDaysStatic += 1
+				print(twitterDaysStatic)
+			else:
+				break
+		print('\n\n\n\n\n\n\n\n\n\n\n\n\ndaysStatic')
+		print(twitterDaysStatic)
+
+		# Trying to give other tips
+		try:
+			# Getting website title text
+			websiteHeader = userReturn['website']['header-text']
+
+			# Making both strings uppercase to identify same letters
+			websiteHeader = websiteHeader.upper()
+			websiteName = websiteName.upper()
+			if websiteName not in websiteHeader:
+				websiteInTitleMessage = "Your website/business name is not in your url. Try finding a domain that fits"
+				tips.append(websiteInTitleMessage)
+
+			if websiteName in twitterName or twitterName in websiteName:
+				pass
+			else:
+				websiteNameMessage = "Website name and twitter name are not simular. Try to make it simular!"			
+			x = 0
+			for link in websiteLinks:
+				if 'about' in link:
+					x += 1
+			if x == len(websiteLinks):
+				websiteLinkTips = "Doesn't seem linke you have an about link on your homepage. Tell people who you are!"
+				tips.append(websiteLinkTips)
+		except Exception as e:
+			print('no unrequired tips')
+			print(e)
+
+		# If conditions are true tips will be given to user
+		
+		# Programming tips
+		if twitterDescriptionLen < 160:
+			twitterDescriptionLenMessage = "Only " + str(twitterDescriptionLen) + "/180 of your characters have been used for your bio. Explain who you are!"
+			tips.append(twitterDescriptionLenMessage)
+		if "#" not in twitterDescription:
+			twitterDescriptionNoHashtagsMessage = "No Hashtags Found. Try adding hashtags to your bio!"
+			tips.append(twitterDescriptionNoHashtagsMessage)
+		if twitterLocation == "":
+			twitterLocationIsNoneMessage = "No location found! Add your location so people know where you are located"
+			tips.append(twitterLocationIsNoneMessage)
+		if twitterDaysStatic >= 3:
+			twitterDaysStaticTip = "Followers on twitter haven't changed in the last " + str(twitterDaysStatic) + " days. Try posting more and engaging with people."
+			tips.append(twitterDaysStaticTip)
+		if twitterFollowing < 100:
+			twitterFollowingTips = "You are only following " + str(twitterFollowing) + " people. Try following more people in your niche."
+			tips.append(twitterFollowingTips)
+		if websiteName == '' and websiteUrl == '':
+			websiteNotExist = "Website not connected we recommend you connect it as soon as possible."
+			tips.append(websiteNotExist)
+
+		print(tips)
+		return tips
+
+	except Exception as e:
+		print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntips error')
+		print(e)
+
+# Get History
+def history(userReturn):
+	try:
+		followerHistoryVar = userReturn['twitter']['history']['followers']
+		dateList = []
+		followerList = []
+		for i in followerHistoryVar:
+			print(i)
+			dateList.append(i)
+
+			date = followerHistoryVar[i]
+
+			followerNumber = date['followers_count'] 
+			followerList.append(followerNumber)
+
+		data = []
+		data.append(dateList)
+		data.append(followerList)
+		return data
+	except Exception as e:
+		print('Trouble getting history')
+		print(e)
+
+# Getting followers' data
+def followerData(userReturn):
+	try:
+		print('followw\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+		followersLocatonList = []
+		followersNameList = []
+
+		# Getting followers info from database
+		followers = userReturn['twitter']['followers']['users']
+
+		# counter
+		x = 0
+		# For loop getting location and name
+		for follow in followers:
+			x += 1
+			followerLocation = follow['location']
+			print(followerLocation)
+			followersLocatonList.append(followerLocation)
+
+			followerName = follow['name']
+			print(followerName)
+
+			followersNameList.append(followerName)
+
+			if x > 9:
+				break
+		print(followersLocatonList)
+		print(followersNameList)
+		data = []
+		data.append(followersNameList)
+		data.append(followersLocatonList)
+		print('\n\n\n\n\n\n\n\n\n\n\n\n')
+		return data
+	except Exception as e:
+		print('Trouble getting follower data returned')
+		print(e)
 
 # Sign Up Function
 @api.route("/create-user", methods=['GET', 'POST'])
@@ -22,10 +222,14 @@ def signUp():
 	
 	# Getting posted data and putting it in a dictionary
 	print(request.get_json)
+	userData['firstname'] = request.get_json()['firstname']
+	userData['lastname'] = request.get_json()['lastname']
 	userData['email'] = request.get_json()['email']
 	userData['password'] = request.get_json()['password']
 
 	# Assigning variables to sign in to database
+	firstname = request.json['firstname']
+	lastname = request.json['lastname']
 	email = request.json['email']
 	password = request.json['password']
 
@@ -35,24 +239,22 @@ def signUp():
 		user = authe.create_user_with_email_and_password(email,password)
 
 		# Assigning json data to variable to return to database
-		userInstagramDefault = {"bio" : "0", "instagram_username" : "none", "number_of_followers" : "0", "number_of_following" : "0", "number_of_post" : "0", "on_desktop" : "False", "on_mobile" : "False", "on_web" : "False"}
-		userTwitterDefault = {"bio" : "0", "twitter_username" : "none", "number_of_followers" : "0", "number_of_following" : "0", "number_of_post" : "0", "on_desktop" : "False", "on_mobile" : "False", "on_web" : "False"}
-		
+		userAccount = {"firstname" : firstname, "lastname" : lastname, "email" : email, "setup_complete" : False}
+
 		# Assigning uid which will be used to create paths in database
 		uid = user['localId']
 
 		# Creating branches
-		database.child("users").child(uid).child("details").child("instagram").set(userInstagramDefault)
-		database.child("users").child(uid).child("details").child("twitter").set(userTwitterDefault)
+		database.child("users").child(uid).child("data").child("account").set(userAccount)
 	except Exception as e:
+		print("problem with creation")
 		print(e)
 		userData['message'] = 'failed'
 		return jsonify(userData)
 	
 	# Appending data into list ready to return
 	userReturn.append(userData)
-	userReturn.append(userInstagramDefault)
-	userReturn.append(userTwitterDefault)
+	userReturn.append(user)
 	
 	print(userReturn)
 	userData['message'] = 'success'
@@ -60,16 +262,15 @@ def signUp():
 	return jsonify(userReturn)
 
 # Signin Function
-@api.route("/signin", methods=['POST'])
+@api.route("/signin", methods=['GET', 'POST'])
 def signIn():
 	userData = dict()
 
 	# Creating list ready to return later
-	userReturn = []
+	userFinal = []
 
 	# Assigning values to list for for loop to go though
-	instagramItemList = ['bio', 'instagram_username', 'number_of_followers', 'number_of_following', 'number_of_post', 'on_desktop', 'on_mobile', 'on_web']
-	twitterItemList = ['bio', 'twitter_username', 'number_of_followers', 'number_of_following', 'number_of_post', 'on_desktop', 'on_mobile', 'on_web']
+	userItemList = ['firstname', 'lastname']
 	
 	# Getting posted data and putting it in a dictionary
 	userData['email'] = request.json['email']
@@ -82,74 +283,55 @@ def signIn():
 	try:
 		# Attemptingto sign in to backend
 		user = authe.sign_in_with_email_and_password(email, password)
+		print(user)
 
 		# Assigning uid as a variable which will be used to go through branched in for loop
 		uid = user['localId']
 
 		# Creating dict to store data from database
-		returnedInfoInstagram = dict()
-		returnedInfoTwitter = dict()
-		
-		# For loops to gather information for each branch
-		for i in instagramItemList:
+		print(user['localId'])
+		userReturn = dict(database.child("users").child(uid).child("data").get().val())
+		userFinal.append(userReturn)
 
-			# Getting paths from database and assign to variable
-			instagramItem = database.child("users").child(uid).child("details").child("instagram").child(i).get().val()
-			print(instagramItem)
+		# Tips
+		print("Tips\n\n\n\n\n\n\n\n\n")
+		returnedTips = tips(userReturn)
+		print(returnedTips)
 
-			returnedInfoInstagram[i] = str(instagramItem)
+		# History
+		historyReturned = history(userReturn)
 
-		for i in twitterItemList:
+		# Getting followers data
+		followersData = followerData(userReturn)
 
-			# Getting paths from database and assign to variable
-			twitterItem = database.child("users").child(uid).child("details").child("twitter").child(i).get().val()
-			returnedInfoTwitter[i] = twitterItem
+		# Getting website data
+		websitesData = websites(userReturn)
 
-		if returnedInfoInstagram['instagram_username'] != 'none':
-			print('method')
+		# Attempting to get competition results
+		try:
+			competition = database.child("users").child(uid).child("data").child("competition").get().val()
+		except Exception as e:
+			print(e)
 
-			# This is where we run code because the account is not empty
-			
-		else:
-			print('works')
-
-		if returnedInfoTwitter['twitter_username'] != 'none':
-			print('method')
-
-			# This is where we run code because the account is not empty
-
-		else:
-			print('works again')
-	# If signin or gathering data fails will return failed
 	except Exception as e:
+		print("Signin error below")
 		print(e)
 		userData['message'] = 'failed'
 		return jsonify(userData)
 
-	# Saving success as message
-	userData['message'] = 'success'
+	# Appending data to final list
+	userFinal.append(user)
+	userFinal.append(returnedTips)
+	userFinal.append(historyReturned)
+	userFinal.append(followersData)
+	userFinal.append(websitesData)
+	userFinal.append(competition)
 
-	# Appending data into list ready to return
-	# userReturn['mainobj']['userData] = userData
-	# userReturn['mainobj']['returnedInfoInstagram'] = returnedInfoInstagram
-	# userReturn['mainobj']['returnedInfoTwitter'] = returnedInfoTwitter
-
-	# userReturn.append({'userdata': userData})
-	# userReturn.append({'returnedInfoInstagram': returnedInfoInstagram})
-	# userReturn.append({'returnedInfoTwitter': returnedInfoTwitter})
-
-	userReturn={
-		'userdata': userData,
-		'returnedInfoInstagram': returnedInfoInstagram,
-		'returnedInfoTwitter': returnedInfoTwitter
-	}
-	# Saving gathered data in session
-	session['user'] = user
-	session['data'] = userReturn
 	# print(userReturn)
 	print(userReturn)
+
 	# Returning main data
-	return jsonify(userReturn)
+	return jsonify(userFinal)
 
 # Signout Function
 @api.route("/signout", methods=['POST'])
@@ -164,87 +346,278 @@ def signOut():
 	return jsonify({ 'message' : returnValue})
 
 
+# Connect Website
+@api.route("/connect-website", methods=['GET','POST'])
+def connectWebsite():
+	userData = dict()
+	userReturn = []
+	try:
+		# Defining variables
+		websiteName = request.form['website_name']
+		websiteUrl = request.form['website_url']
+
+		if websiteName is not None and websiteUrl is not None:
+			print('aaa')
+			websiteScrap = websiteScrapping(websiteUrl)
+			print('aaa')
+			
+			websiteData = { "website-name" : websiteName, "website-url" : websiteUrl, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
+			print('aaa')
+
+			# Putting them into sessions
+			session['websiteData'] = websiteData
+
+			# Importing data in firebase
+			user = session['user']
+
+			uid = user['localId']
+
+			database.child("users").child(uid).child("data").child("website").set(websiteData)
+			value = 'success'
+		else:
+			value = 'failed'
+		return jsonify(value)
+	except Exception as e:
+		print('Not dashboard\n\n\n\n\n\n\n')
+		print(e)
+		print("d")
+
+		# API Request
+		try:
+			print(request.get_json())
+
+			# Getting posted data
+			userData['website-name'] = request.get_json()['website-name']
+			userData['website-url'] = request.get_json()['website-url']
+
+			# Defining variables
+			websiteName = userData['website-name']
+			websiteUrl = userData['website-url']
+			
+			websiteScrap = websiteScrapping(website_url)
+			
+			addWebsite = { "website-name" : website_name, "website-url" : website_url, "header-text" : websiteScrap[0], "links" : websiteScrap[1] }
+
+			# Importing data in firebase
+			database.child("users").child(uid).child("data").child("website").set(websiteData)
+
+			return jsonify(userData)
+		except Exception as e:
+			 print('opperation failed')
+			 print(e)
+			 value = 'failed'
+
+			 return jsonify(value)
+
+# Disconnect website function
+@api.route("/disconnect-website", methods=['GET','POST'])
+def disconnectWebsite():
+	try:
+
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+		# Returning website data to default 
+		addWebsite = { "website-name" : '', "website-url" : '' }
+		database.child("users").child(uid).child("data").child("website").set(addWebsite)
+
+		# Trying to put data in session
+		try:
+			session['websiteData'] = dict(database.child("users").child(uid).child("data").child("website").get().val())
+		except Exception as e:
+			 print('failed to add session')
+			 print(e)
+
+		value = 'success'
+	except Exception as e:
+		 print('Disconnect Failed')
+		 print(e)
+
+	return value
+
+# Posting niche
+@api.route("/post-niche", methods=['GET','POST'])
+def postNiche():
+	try:
+		print('aaaaaa')
+		nichePost = request.form['niche_text']
+		
+		# Getting data from firebase
+		user = session['user']
+		uid = user['localId']
+
+		location = database.child("users").child(uid).child("data").child("twitter").child("userData").child("location").get().val()
+		
+		# Getting competitiors on google
+		searchResults = googleSearch(nichePost, location, 1)
+		print(searchResults)
+
+		# Putting niche in database
+		database.child("users").child(uid).child("data").child("account").update({'niche' : nichePost })
+
+		# Putting competitors in database
+		database.child("users").child(uid).child("data").child("competition").set(searchResults)
+		print('aaaaaa')
+
+		# Putting data in session
+		session['competition'] = searchResults
+
+		value = 'success'
+	except Exception as e:
+		print('niche post failed')
+		print(e)
+		value = 'failed'
+	return value
+
+# Disconnecting niche and competition
+@api.route("/disconnect-niche", methods=['GET','POST'])
+def disconnectNiche():
+	try:
+		print('disconnecting')
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+
+		# Disconnecting niche from database
+		database.child("users").child(uid).child("data").child("twitter").child("userData").child("account").child("niche").remove()
+
+		# Popping niche from session
+		session.pop('competition', None)
+
+		# Assigning message
+		value = 'success'
+	except Exception as e:
+		print(e)
+		value = 'failed'
+	return value
+
+
+@api.route("/refresh-search", methods=['GET','POST'])
+def refreshSearch():
+	try:
+		print('aaaaa')
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+		# Getting parameter data from firebase
+		niche = database.child("users").child(uid).child("data").child("account").child("niche").get().val()
+		location = database.child("users").child(uid).child("data").child("twitter").child("userData").child("location").get().val()
+
+		# Running function
+		randomInt = random.randint(1,7)
+		searchResults = googleSearch(niche, location, randomInt)
+
+		print(searchResults)
+
+		# Putting data back in firebase
+		database.child("users").child(uid).child("data").child("competition").set(searchResults)
+
+		session['competition'] = searchResults
+
+		value = 'success'
+	except Exception as e:
+		print('Refresh search failed')
+		print(e)
+		value = 'failed'
+
+	return value
+
+@api.route("/refresh-followers", methods=['GET','POST'])
+def refreshFollowers():
+	print('aaaaa')
+	try:
+
+		currentFollowersShowingName = []
+		currentFollowersShowingLocation = []
+		followersLocatonList = []
+		followersNameList = []
+		print('aaaaa')
+
+		# Getting firebase data
+		user = session['user']
+		uid = user['localId']
+
+		# Getting number of followers
+		followers = database.child("users").child(uid).child("data").child("twitter").child("followers").child("users").get().val()
+
+		for currentItem in session['followersData'][0]:
+			currentFollowersShowingName.append(currentItem)
+
+		for currentItem in session['followersData'][1]:
+			currentFollowersShowingLocation.append(currentItem)
+
+		print()
+		# counter
+		x = 0
+		print('aaaaa')
+
+		# For loop getting location and name
+		for follow in followers:
+
+			# Checking if name is current
+			if follow['name'] in currentFollowersShowingName:
+				print('found')
+				continue
+			x += 1
+			followerLocation = follow['location']
+			print(followerLocation)
+			followersLocatonList.append(followerLocation)
+
+			followerName = follow['name']
+			print(followerName)
+
+			followersNameList.append(followerName)
+
+			if x > 9:
+				break
+
+		print("x")
+		print(x)
+		if x < 9:
+			print('aaaaa')
+			for currentItem in currentFollowersShowingName:
+				print(currentItem)
+				currentFollowerName = currentItem
+				followersNameList.append(currentFollowerName)
+
+			for currentItem in currentFollowersShowingLocation:
+				x += 1
+				currentFollowerLocation = currentItem
+				followersLocatonList.append(currentFollowerLocation)
+
+				if x > 9:
+					break
+		print(followersNameList)
+		print(followersLocatonList)
+
+		data = []
+		data.append(followersNameList)
+		data.append(followersLocatonList)
+		print(data)
+		session['followersData'] = data
+		value = 'success'
+	except Exception as e:
+		print(e)
+		value = 'failed'
+
+	return value
+
 # GOOGLE SEARCH
 
-# Search Function
-@api.route("/search-form", methods=['GET', 'POST'])
-def searchForm():
-	print('searching')
+# # Search Function
+# @api.route("/search-form", methods=['GET', 'POST'])
+# def searchForm():
+# 	print('searching')
 
-	search = request.form['search']
-	connect = googleConnect(search)
-	print(connect)
+# 	search = request.form['search']
+# 	connect = googleConnect(search)
+# 	print(connect)
 
-	return jsonify(connect)
+# 	return jsonify(connect)
 
-
-# TWITTER OAUTH
-twitter = twitterConnect()
-
-@twitter.tokengetter
-def get_twitter_token():
-    if 'twitter_oauth' in session:
-        resp = session['twitter_oauth']
-        return resp['oauth_token'], resp['oauth_token_secret']
-
-
-@api.before_request
-def before_request():
-    g.user = None
-    if 'twitter_oauth' in session:
-        g.user = session['twitter_oauth']
-
-
-@api.route('/twitter-getdata')
-def index():
-	tweets = None
-	if g.user is not None:
-		resp = twitter.request('statuses/home_timeline.json')
-	if resp.status == 200:
-		tweets = resp.data
-		print(tweets)
-	else:
-		print('Unable to load tweets from Twitter.')
-	return jsonify(tweets)
-
-# Twitter Sign In function
-@api.route('/sign-in-twitter')
-def twitterLogin():
-    callback_url = url_for('api.twitterOauthorized', next=request.args.get('next'))
-
-    # callback_url = "http://localhost:5000/"
-    return twitter.authorize(callback=callback_url)
-
-@api.route('/twitter-oauthorized')
-def twitterOauthorized():
-	print('dfdff')
-	resp = twitter.authorized_response()
-	print(resp)
-	if resp is None:
-		print('You denied the request to sign in.')
-	else:
-		session['twitter_oauth'] = resp
-
-		# Getting User Time Line
-		timeline = twitter.request('statuses/home_timeline.json')
-		tweets = timeline.data
-		print('printing timeline\n\n\n\n')
-		print(tweets)
-
-		# Getting User Followers
-		getFollowers = twitter.request('followers/list.json')
-		followers = getFollowers.data
-		print('printing followers\n\n\n\n')
-		print(followers)
-
-		# Getting User Following
-		getFollowering = twitter.request('friends/list.json')
-		following = getFollowering.data
-		print('printing following\n\n\n\n')
-		print(following)
-
-
-	return redirect(url_for('dashboard.home'))
 
 
 

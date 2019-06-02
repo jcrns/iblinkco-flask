@@ -13,6 +13,66 @@ import requests
 # Defining Blueprint var
 users = Blueprint('users', __name__, template_folder='templates')
 
+def creationFormating(returnedData):
+    print("Beggining Format")
+    # Defining User Varibles
+    email = returnedData['account']['email']
+    firstname = returnedData['account']['firstname']
+    lastname = returnedData['account']['lastname']
+    try:
+        websiteName = returnedData['website']['website-name']
+        session['website_name'] = websiteName
+
+        websiteUrl = returnedData['website']['website-url']
+        session['website_url'] = websiteUrl
+    except Exception as e:
+        print(e)
+        print('website not connected')
+
+    # Storing returned data
+    session['name'] = str(firstname) + " " + str(lastname)
+    session['email'] = email
+
+
+    # Attempting to format unrequired data
+    try:
+        setup_complete = returnedData['account']['setup_complete']
+        session['setup_complete'] = setup_complete
+        niche = returnedData['account']['niche']
+        session['niche'] = niche
+
+    except Exception as e:
+        print("Setup incomplete\n\n\n\n\n")
+        print(e)
+
+    # Checking for twitter
+    try:
+        requestedTwitterUserData = ['description', 'friends_count', 'followers_count', 'location', 'name', 'screen_name']
+        returnedTwitterUserData = dict()
+
+        # Defining variables equal to json data
+        twitterData = returnedData['twitter']
+
+        for i in requestedTwitterUserData:
+            userItem = returnedData['twitter']['userData'][i]
+            returnedTwitterUserData[i] = userItem
+            print(userItem)
+        session['userTwitterData'] = returnedTwitterUserData
+        # session['twitter'] = twitterData
+    except Exception as e:
+        print('Twitter not connected')
+        print(e)
+
+    # Checking for instagram
+    try:
+        # Defining variables equal to json data
+        instagramData = returnedData['instagram']
+
+        session['instagram'] = instagramData
+    except Exception as e:
+        print('Instagram not connected')
+        print(e)
+
 # Register page url and function
 @users.route("/register", methods=['GET', 'POST'])
 def register():
@@ -25,30 +85,29 @@ def register():
 
         # Defining variables equal to post request paramaters
         url = "http://localhost:8000/create-user"
-        data = { 'email': form.email.data, 'password': form.password.data }
+        data = { 'firstname': form.firstname.data, 'lastname': form.lastname.data, 'email': form.email.data, 'password': form.password.data }
 
-        # Sending data to API
-        getData = requests.post(url = url, json = data) 
+        try:
+            # Sending data to API
+            getData = requests.post(url = url, json = data) 
 
-        # Getting returned data
-        returnedData = getData.json()
-        successMessage = returnedData[0]['message']
-        email = returnedData[0]['email']
+            # Getting returned data
+            returnedData = getData.json()
+            email = returnedData[0]['email']
+            firstname = returnedData[0]['firstname']
+            lastname = returnedData[0]['lastname']
 
-        # Defining variables equal to json data
-        instagramData = returnedData[1]
-        twitterData = returnedData[2]
+            # Storing returned data
+            session['user'] = returnedData[1]
+            session['name'] = str(firstname) + " " + str(lastname)
+            session['email'] = email
 
-        # Storing returned data
-        session['email'] = email
-        session['instagramData'] = instagramData
-        session['twitterData'] = twitterData
-
-
-        # Alerting user account was created
-        flash(f'Account Created for {form.email.data} !', 'success')
-
-        return redirect(url_for('homepage.home'))
+            # Alerting user account was created
+            flash(f'Account Created for {form.email.data} !', 'success')
+            return redirect(url_for('dashboard.home'))
+        except Exception as e:
+            print(e)
+            flash(f'Failed to Create Account')
 
     return render_template('users/register.html', title='Register', form=form)
 
@@ -68,43 +127,53 @@ def login():
         # Sending data to API
         getData = requests.post(url = url, json = data) 
         print(getData)
+
         # Getting returned data
-        returnedData = getData.json()
-        successMessage = returnedData['userdata']['message']
-        print(successMessage)
-        email = returnedData['userdata']['email']
+        finalizedData = getData.json()
+        # print(finalizedData)
+        print(finalizedData)
+        session['user'] = finalizedData[1]
+        session['tips'] = finalizedData[2]
+        returnedData = finalizedData[0]
 
-        # Defining variables equal to json data
-        instagramData = returnedData['returnedInfoInstagram']
-        twitterData = returnedData['returnedInfoTwitter']
+        print(finalizedData[1])
+        # print(returnedData)
 
-        # Storing returned data
-        session['email'] = email
-        session['instagramData'] = instagramData
-        session['twitterData'] = twitterData 
+        # Getting history
+        session['history'] = finalizedData[3]
 
+        # Getting followers' data
+        session['followersData'] = finalizedData[4]
 
-        # Storing all variables in session
-        session['instagramBio'] = instagramData['bio']
-        session['instagramUsername'] = instagramData['instagram_username']
-        session['instagramNumberOfFollowers'] = instagramData['number_of_followers']
-        session['instagramNumberOfFollowing'] = instagramData['number_of_following']
-        session['instagramNumberOfPost'] = instagramData['number_of_post']
-        session['instagramOnDesktop'] = instagramData['on_desktop']
-        session['instagramOnMobile'] = instagramData['on_mobile']
-        session['instagramOnWeb'] = instagramData['on_web']
-        
-        session['twitterBio'] = twitterData['bio']
-        session['twitterUsername'] = twitterData['twitter_username']
-        session['twitterNumberOfFollowers'] = twitterData['number_of_followers']
-        session['twitterNumberOfFollowing'] = twitterData['number_of_following']
-        session['twitterNumberOfPost'] = instagramData['number_of_post']
-        session['twitterOnDesktop'] = twitterData['on_desktop']
-        session['twitterOnMobile'] = twitterData['on_mobile']
-        session['twitterOnWeb'] = twitterData['on_web']
+        # Getting website data
+        session['websiteData'] = finalizedData[5]
+        print(finalizedData[5])
 
+        print(finalizedData[2])
 
-        return redirect(url_for('homepage.home'))
+        try:
+            print('sssssss\n\n\n\n\n\n\n\n\n')
+            session['competition'] = finalizedData[6]  
+            print(session['competition'])
+        except Exception as e:
+             print(e)
+             print('sssssss\n\n\n\n\n\n\n\n\n')
+
+             print('no competition')
+        try:
+
+            createFormat = creationFormating(returnedData)
+            session.permanent = True
+            print(finalizedData[2])
+            print('aaaa')
+
+            return redirect(url_for('dashboard.home'))
+
+        except Exception as e:
+            print("e")
+            print(e)
+            flash(f'signin failed')
+
     return render_template('users/login.html', title="Login", form=form)
 
 @users.route("/logout")

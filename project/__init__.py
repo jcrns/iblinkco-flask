@@ -1,13 +1,11 @@
 # Importing all needed Flask classes
-from flask import Flask, render_template, session, flash, redirect, url_for
+from flask import Flask, render_template, session, flash, redirect, url_for, session
 
 # Importing os to encode session variable
 import os
 
 # Importing Views
 from project.homepage.views import homepage
-
-from project.websites.views import websites
 
 from project.users.views import users
 
@@ -18,6 +16,9 @@ from project.api.views import api
 # Importing ssl
 import ssl
 
+# Importing Time
+from datetime import timedelta
+
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -27,8 +28,6 @@ app = Flask(__name__)
 # Registering Blueprints
 app.register_blueprint(homepage)
 
-app.register_blueprint(websites)
-
 app.register_blueprint(users)
 
 app.register_blueprint(dashboard)
@@ -36,8 +35,10 @@ app.register_blueprint(dashboard)
 app.register_blueprint(api)
 
 
-# Generating the secret key
+# Key Config
 app.config['SECRET_KEY'] = os.urandom(24)
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=40000)
+SESSION_TYPE = 'filesystem'
 
 @app.route('/')
 def root():
